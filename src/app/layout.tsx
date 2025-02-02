@@ -6,7 +6,7 @@ import { ThemeProvider } from "@/lib/providers/next-theme-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Horizon",
+  title: "BudgetWise",
   description: "Manage your fininace in a reliable way!",
 };
 
