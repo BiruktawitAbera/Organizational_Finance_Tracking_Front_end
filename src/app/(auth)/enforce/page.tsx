@@ -5,27 +5,23 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 function Enforce() {
-  const router = useRouter(); // Initialize useRouter
-  const [currentPassword, setCurrentPassword] = useState('');
+  const router = useRouter();
+  const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = (event) => {
-    event.preventDefault(); // Prevent default form submission
-
-    // Check if new password and confirm password match
+    event.preventDefault(); 
     if (newPassword !== confirmNewPassword) {
       setErrorMessage("New Password and Confirm New Password must match.");
       return;
     }
 
-    // If they match, you can proceed with form submission logic here
-    console.log("Current Password:", currentPassword);
+    console.log("old Password:", oldPassword);
     console.log("New Password:", newPassword);
     
-    // Reset form fields
-    setCurrentPassword('');
+    setOldPassword('');
     setNewPassword('');
     setConfirmNewPassword('');
     setErrorMessage('');
@@ -53,12 +49,12 @@ function Enforce() {
 
           <form onSubmit={handleSubmit}>
             <div className="mb-2.5">
-              <label className="block font-semibold text-base text-gray-500 mb-2.5">Current Password</label>
+              <label className="block font-semibold text-base text-gray-500 mb-2.5">Old Password</label>
               <input 
                 type="password" 
                 placeholder="********" 
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
+                value={oldPassword}
+                onChange={(e) => setOldPassword(e.target.value)}
                 className="w-full px-3 py-2 border rounded" 
                 minLength={6} 
                 required 
