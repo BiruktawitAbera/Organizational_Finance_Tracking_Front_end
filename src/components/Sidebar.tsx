@@ -15,14 +15,12 @@ import {
   FileText,
 } from 'lucide-react';
 
-// Define the type for the Sidebar props
 interface SidebarProps {
-  role: 'manager' | 'admin'; // Adjust as necessary for your roles
+  role: 'manager' | 'admin'; 
   username: string;
   email: string;
 }
 
-// Define the base menu items
 const baseMenuItems = [
   { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { path: '/analytics', icon: BarChart3, label: 'Analytics' },
@@ -35,7 +33,6 @@ const baseMenuItems = [
 function Sidebar({ role }: SidebarProps) {
   const [isOpen, setIsOpen] = React.useState(false);
 
-  // Dynamically create menu items based on the role
   const roleBasedMenuItems = [];
 
   if (role === 'manager') {

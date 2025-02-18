@@ -1,15 +1,14 @@
-import React from 'react';
-import { TrendingUp, Users, Clock, Target } from 'lucide-react';
+import { TrendingUp, Users, Target } from 'lucide-react';
 
 export default function AnalyticsPage() {
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Analytics</h1>
+      <h1 className="mb-6 text-2xl font-bold text-gray-800">Analytics</h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-xl shadow-sm">
+      <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2 lg:grid-cols-3">
+        <div className="p-6 bg-white shadow-sm rounded-xl">
           <div className="flex items-center gap-4 mb-4">
-            <div className="p-2 bg-purple-50 rounded-lg">
+            <div className="p-2 rounded-lg bg-purple-50">
               <TrendingUp className="w-6 h-6 text-purple-600" />
             </div>
             <h3 className="text-lg font-semibold">Growth</h3>
@@ -18,9 +17,9 @@ export default function AnalyticsPage() {
           <p className="text-sm text-gray-600">Compared to last month</p>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-sm">
+        <div className="p-6 bg-white shadow-sm rounded-xl">
           <div className="flex items-center gap-4 mb-4">
-            <div className="p-2 bg-blue-50 rounded-lg">
+            <div className="p-2 rounded-lg bg-blue-50">
               <Users className="w-6 h-6 text-blue-600" />
             </div>
             <h3 className="text-lg font-semibold">Users</h3>
@@ -29,9 +28,9 @@ export default function AnalyticsPage() {
           <p className="text-sm text-gray-600">Active users this week</p>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-sm">
+        <div className="p-6 bg-white shadow-sm rounded-xl">
           <div className="flex items-center gap-4 mb-4">
-            <div className="p-2 bg-green-50 rounded-lg">
+            <div className="p-2 rounded-lg bg-green-50">
               <Target className="w-6 h-6 text-green-600" />
             </div>
             <h3 className="text-lg font-semibold">Conversion</h3>
@@ -41,8 +40,8 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-xl shadow-sm mb-6">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">Performance Overview</h2>
+      <div className="p-6 mb-6 bg-white shadow-sm rounded-xl">
+        <h2 className="mb-4 text-lg font-semibold text-gray-800">Performance Overview</h2>
         <div className="space-y-4">
           {['Page Views', 'Bounce Rate', 'Session Duration'].map((metric, i) => (
             <div key={i} className="flex items-center justify-between">

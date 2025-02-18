@@ -2,7 +2,6 @@ import { Users, DollarSign, ShoppingCart, Bell } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar.tsx";
 import DoughnutChart from "../components/totalprofit.tsx"
 import AnimatedCounter from "../components/animatedcounter.tsx"
-// import PredictionSection from '../components/PredictionSection.tsx';
 import { Tv, Coins } from 'lucide-react';
 import IncomeTable from '../components/table.tsx';
 import { Line, Doughnut } from 'react-chartjs-2';
@@ -25,23 +24,23 @@ const lineOptions = {
   responsive: true,
   elements: {
     line: {
-      tension: 0.4, // Smooth the lines
+      tension: 0.4, 
     },
     point: {
-      radius: 0, // Remove the points
+      radius: 0,
     }
   },
   scales: {
     x: {
-      display: false, // Remove the x-axis
+      display: false, 
     },
     y: {
-      display: false, // Remove the y-axis
+      display: false,
     },
   },
   plugins: {
     legend: {
-      display: false, // Hide the legend if desired
+      display: false, 
     },
   },
 };
@@ -111,12 +110,16 @@ const doughnutOptions = {
   responsive: true,
   plugins: {
     legend: {
-      display: false, // Hide the legend if desired
+      display: false,
     },
   },
 };
 
-export default function DashboardPage({ role }) {
+interface DashboardPageProps {
+  role: () => string;
+}
+
+export default function DashboardPage({ role }: DashboardPageProps) {
   return (
     <div className='font-inter'>
       <div className='flex items-center justify-between mb-6'>
@@ -152,53 +155,32 @@ export default function DashboardPage({ role }) {
         </div>
         </div>
     </section>
-    <section className='flex p-6 mb-6 bg-white rounded-lg shadow-lg'>
-        <div className="flex justify-between w-full">
-          <div className="flex flex-col items-center w-1/2">
-            <div className="flex items-center justify-center w-full" style={{ height: '200px' }}>
-              <Line data={lineData} options={lineOptions} />
-            </div>
-            <p className='mt-4 text-lg font-bold'>Prediction</p>
-          </div>
-          <p className='flex items-end mt-4 text-lg font-bold'>Status: <span className="text-green-500"> Good</span></p>
-          <div className="flex flex-col items-center w-1/2">
-            <div className="flex items-center justify-center w-full" style={{ height: '200px' }}>
-              <Doughnut data={doughnutData} options={doughnutOptions} />
-            </div>
-            <p className='mt-4 text-lg font-bold'>Budget Allocation</p>
-          </div>
-        </div>
-      </section>
-    
-    {/* PredictionSection */}
-    {/* <section className="flex flex-col p-6 m-2 bg-white rounded-lg shadow-lg" style={{ borderRadius: '20px', height: '300px' }}>
-          <div className="flex justify-between w-full">
-            <div className="flex flex-col items-center w-1/2">
-              <div className="flex items-center justify-center w-full" style={{ height: '200px' }}>
-                <Line data={lineData} options={lineOptions} />
-              </div>
-            </div>
-            <div className="flex flex-col items-center w-1/2">
-              <div className="flex items-center justify-center w-full" style={{ height: '200px' }}>
-                <Doughnut data={doughnutData} options={doughnutOptions} />
-              </div>
-            </div>
-          </div>
-          <div className="flex mt-4 justify-evenly">
-            <div className='flex justify-between'>
-              <p className="text-lg font-bold">Prediction for the next month</p>
-              <p className="text-lg"><strong>Status: <span className="text-green-500">Good</span></strong></p>
-            </div>
-            <p className="text-lg font-bold"> Budgt Allocation</p>
-          </div>
-        </section> */}
-  {/* Conditionally render Quick Actions based on role */}
+    <section className='flex flex-col p-6 mb-6 bg-white rounded-lg shadow-lg'>
+  <div className="flex flex-col justify-between w-full md:flex-row">
+    <div className="flex flex-col items-center w-full mb-4 md:w-1/2 md:mb-0">
+      <div className="flex items-center justify-center w-full" style={{ height: '200px' }}>
+        <Line data={lineData} options={lineOptions} />
+      </div>
+      <p className='mt-4 text-lg font-bold'>Prediction</p>
+    </div>
+
+    <p className='flex items-end mt-4 text-lg font-bold text-center md:mt-0'>Status: <span className="text-green-500"> Good</span></p>
+
+    <div className="flex flex-col items-center w-full md:w-1/2">
+      <div className="flex items-center justify-center w-full" style={{ height: '200px' }}>
+        <Doughnut data={doughnutData} options={doughnutOptions} />
+      </div>
+      <p className='mt-4 text-lg font-bold'>Budget Allocation</p>
+    </div>
+  </div>
+</section>
+
+  {/* Conditionally rendering */}
   {role !== 'admin' && (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-    {/* Recent Activity Section */}
     <div className="p-6 bg-white shadow-md rounded-xl">
       <h2 className="mb-4 text-lg font-bold text-gray-800">My budget</h2>
-      <div className="space-y-3"> {/* Adjusted spacing to 12px */}
+      <div className="space-y-3"> 
         {recentActivities.map((activity, i) => (
           <div key={i} className="space-y-1">
             <div className={`flex items-center gap-4 p-5 rounded-xl ${

@@ -54,7 +54,7 @@ function SignUpPage() {
           </div>
           <div className="text-center">
             <p className="my-6 text-sm text-gray-500">
-              Already have an account? <a href="/sign-in" className="font-semibold text-sky-600">Sign in</a>
+              Already have an account? <a href="/login" className="font-semibold text-sky-600">Sign in</a>
             </p>
           </div>
         </div>
