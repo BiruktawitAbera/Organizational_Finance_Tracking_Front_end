@@ -12,6 +12,7 @@ function SignInPage({ onLogin }: SignInPageProps) {
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(false); // Loader state
 
   useEffect(() => {
     if (localStorage.getItem('rememberMe') === 'true') {
@@ -21,11 +22,14 @@ function SignInPage({ onLogin }: SignInPageProps) {
     }
   }, []);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setLoading(true); // Start loading
+
+    // Simulate an API call with a timeout
+    await new Promise(resolve => setTimeout(resolve, 5000));
 
     if (email === "admin@gmail.com" && password === "123456QWERTY") {
-      // Save credentials if rememberMe is checked
       if (rememberMe) {
         localStorage.setItem('rememberMe', 'true');
         localStorage.setItem('email', email);
@@ -41,6 +45,8 @@ function SignInPage({ onLogin }: SignInPageProps) {
     } else {
       setErrorMessage("Invalid credentials");
     }
+
+    setLoading(false); // Stop loading
   };
 
   const handleRememberMeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,10 +56,10 @@ function SignInPage({ onLogin }: SignInPageProps) {
   return (
     <main className="flex w-full min-h-screen">
       <section className="relative flex items-center justify-center flex-1 p-2 overflow-hidden bg-white">
-        <div className="w-full max-w-md px-6 pt-2 mx-auto bg-white rounded-lg shadow-md animate-fadeIn">
+        <div className="w-full max-w-md px-6 py-12 mx-auto bg-white rounded-lg shadow-md animate-fadeIn">
           <div className="flex items-center mb-4">
             <div className="p-2 rounded-full">
-              <img src="logo.png" alt="HorizonLogo" width={33} height={33} />
+              <img src="logo.png" alt="Logo" width={33} height={33} />
             </div>
             <h1 className="font-serif text-3xl font-bold">BudgetWise</h1>
           </div>
@@ -98,21 +104,16 @@ function SignInPage({ onLogin }: SignInPageProps) {
               </label>
               <a href="#" className="text-sm font-normal text-gray-400 underline">Forgot your password?</a>
             </div>
-            <Button type="submit" className="relative w-full bg-sky-600 hover:bg-sky-700 group">
+            <Button type="submit" className={`relative w-full bg-sky-600 hover:bg-sky-700 group ${loading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={loading}>
               Login
               <span className="absolute transition-opacity transition-transform duration-300 ease-out transform translate-x-4 opacity-0 right-4 group-hover:translate-x-0 group-hover:opacity-100">→</span>
             </Button>
+            {loading && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white bg-opacity-50">
+                <div className="loader"></div> 
+              </div>
+            )}
           </form>
-          <div className="flex items-center my-7">
-            <hr className="flex-grow" />
-            <span className="mx-2 text-gray-400">or</span>
-            <hr className="flex-grow" />
-          </div>
-          <div className="text-center">
-            <p className="my-6 text-sm text-gray-500">
-              Don't have an account? <a href="/register" className="font-semibold text-sky-600">Sign Up</a>
-            </p>
-          </div>
         </div>
       </section>
     </main>
