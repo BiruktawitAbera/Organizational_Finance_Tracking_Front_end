@@ -1,27 +1,50 @@
 import { Button } from "../components/ui/button.tsx";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 
 interface SignInPageProps {
   onLogin: () => void;
 }
 
-
 function SignInPage({ onLogin }: SignInPageProps) {
   const navigate = useNavigate();
-  const [email, setEmail] = useState(''); 
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    if (localStorage.getItem('rememberMe') === 'true') {
+      setRememberMe(true);
+      setEmail(localStorage.getItem('email') || '');
+      setPassword(localStorage.getItem('password') || '');
+    }
+  }, []);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    
+
     if (email === "admin@gmail.com" && password === "123456QWERTY") {
-      onLogin(); 
-      navigate('/'); 
+      // Save credentials if rememberMe is checked
+      if (rememberMe) {
+        localStorage.setItem('rememberMe', 'true');
+        localStorage.setItem('email', email);
+        localStorage.setItem('password', password);
+      } else {
+        localStorage.removeItem('rememberMe');
+        localStorage.removeItem('email');
+        localStorage.removeItem('password');
+      }
+
+      onLogin();
+      navigate('/');
     } else {
       setErrorMessage("Invalid credentials");
     }
+  };
+
+  const handleRememberMeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRememberMe(event.target.checked);
   };
 
   return (
@@ -42,30 +65,35 @@ function SignInPage({ onLogin }: SignInPageProps) {
           <form onSubmit={handleSubmit}>
             <div className="mb-6">
               <label className="block font-semibold text-base text-gray-500 mb-2.5">Email</label>
-              <input 
-                type="email" 
-                placeholder="Enter your email.." 
-                className="w-full px-3 py-2 border rounded" 
-                required 
+              <input
+                type="email"
+                placeholder="Enter your email.."
+                className="w-full px-3 py-2 border rounded"
+                required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className="mb-2.5">
               <label className="block font-semibold text-base text-gray-500 mb-2.5">Password</label>
-              <input 
-                type="password" 
-                placeholder="********" 
-                className="w-full px-3 py-2 border rounded" 
-                minLength={6} 
-                required 
+              <input
+                type="password"
+                placeholder="********"
+                className="w-full px-3 py-2 border rounded"
+                minLength={6}
+                required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
             <div className="flex items-center justify-between mb-7">
               <label className="flex items-center">
-                <input type="checkbox" className="mr-2 text-gray-400 font-base" />
+                <input
+                  type="checkbox"
+                  className="mr-2 text-gray-400 font-base"
+                  checked={rememberMe}
+                  onChange={handleRememberMeChange}
+                />
                 Remember me
               </label>
               <a href="#" className="text-sm font-normal text-gray-400 underline">Forgot your password?</a>
