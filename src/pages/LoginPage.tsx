@@ -1,26 +1,41 @@
-import { Button } from "../components/ui/button.tsx";
+import { Button } from "../components/ui/button";
 import { useState } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import api from "../api"; // Axios instance
 
 interface SignInPageProps {
-  onLogin: () => void;
+  onLogin: (token: string) => void;
 }
-
 
 function SignInPage({ onLogin }: SignInPageProps) {
   const navigate = useNavigate();
-  const [email, setEmail] = useState(''); 
-  const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    
-    if (email === "admin@gmail.com" && password === "123456QWERTY") {
-      onLogin(); 
-      navigate('/'); 
-    } else {
-      setErrorMessage("Invalid credentials");
+    setErrorMessage("");
+
+    try {
+      const response = await api.post("/api/token/", { email, password });
+
+      if (response.data.force_password_change) {
+        navigate("/enforce", { state: { email } }); // Redirect to /enforce page
+        return;
+      }
+
+      const token = response.data.token;
+      localStorage.setItem("authToken", token); // Store token
+      onLogin(token); // Update state in parent component
+      navigate("/");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      if (error.response?.data?.force_password_change) {
+        navigate("/enforce", { state: { email } }); // Redirect to /enforce page
+      } else {
+        setErrorMessage(error?.response?.data?.detail || "Invalid credentials");
+      }
     }
   };
 
@@ -36,9 +51,7 @@ function SignInPage({ onLogin }: SignInPageProps) {
           </div>
           <h1 className="text-3xl font-semibold py-2.5">Log in</h1>
           <p className="mb-10 text-sm font-normal text-gray-400 gray-100">Welcome back! Please Enter Your Credentials.</p>
-          {errorMessage && (
-            <div className="mb-4 text-red-500">{errorMessage}</div>
-          )}
+          {errorMessage && <div className="mb-4 text-red-500">{errorMessage}</div>}
           <form onSubmit={handleSubmit}>
             <div className="mb-6">
               <label className="block font-semibold text-base text-gray-500 mb-2.5">Email</label>
