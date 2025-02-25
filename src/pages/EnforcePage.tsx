@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "../components/ui/button.tsx";
 import api from "../api"; // Axios instance
 
@@ -19,8 +19,7 @@ function EnforcePage() {
     }
 
     setLoading(true);
-
-    const token = localStorage.getItem("auth_token")?.replace(/['"]+/g, ""); // ✅ Ensure correct key
+    const token = localStorage.getItem("auth_token")?.replace(/['"]+/g, "");
 
     if (!token) {
       setErrorMessage("No authentication token found. Please log in.");
@@ -32,29 +31,42 @@ function EnforcePage() {
       const response = await api.post(
         "/change-password/",
         {
-          old_password: oldPassword,  // ✅ Include old password
+          old_password: oldPassword,
           new_password: newPassword,
           confirm_password: confirmNewPassword,
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`, // ✅ Ensure correct token format
+            Authorization: `Bearer ${token}`, // ✅ Corrected template literal
           },
         }
       );
 
       if (response.status === 200) {
-        // ✅ Store the new tokens after password change
         localStorage.setItem("auth_token", response.data.access);
         localStorage.setItem("refresh_token", response.data.refresh);
 
         alert(response.data.message || "Password changed successfully!");
 
-        // ✅ Redirect user after password update
-        window.location.href = "/dashboard";
+        // ✅ Fetch user role after password change
+        const roleResponse = await api.get("/api/accounts/user-role/", {
+          headers: { Authorization: `Bearer ${response.data.access}` },
+        });
+
+        const userRole = roleResponse.data.role?.toLowerCase();
+        console.log("User Role:", userRole); // ✅ Check role before navigation
+
+        // ✅ Navigate based on role
+        if (userRole === "admin") {
+          window.location.href = "/admin-dashboard";
+        } else if (userRole === "manager") {
+          window.location.href = "/manager-dashboard";
+        } else {
+          window.location.href = "/employee-dashboard";
+        }
       }
     } catch (error: any) {
-      console.error("API Error:", error.response?.data); // Log error response
+      console.error("API Error:", error.response?.data);
       setErrorMessage(
         error.response?.data?.detail || "An error occurred. Please try again."
       );
