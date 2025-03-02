@@ -25,11 +25,16 @@ function SignInPage({ onLogin }: SignInPageProps) {
         return;
       }
 
-      const token = response.data.token;
-      localStorage.setItem("authToken", token); // Store token
-      onLogin(token); // Update state in parent component
-      navigate("/");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const userRole = response.data.role.toLowerCase();
+      if (userRole === "admin") {
+        navigate("/admin-dashboard");
+      } else if (userRole === "manager") {
+        navigate("/manager-dashboard");
+      } else {
+        navigate("/employee-dashboard");
+      }
+        
+      onLogin(response.data.access); // Pass the token to parent component
     } catch (error: any) {
       if (error.response?.data?.force_password_change) {
         navigate("/enforce", { state: { email } }); // Redirect to /enforce page
