@@ -116,7 +116,7 @@ const doughnutOptions = {
 };
 
 interface DashboardPageProps {
-  role: () => string;
+  role: string;
 }
 
 export default function DashboardPage({ role }: DashboardPageProps) {

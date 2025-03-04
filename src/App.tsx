@@ -13,11 +13,13 @@ import { useState } from 'react';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [role, setRole] = useState('');
 
-  const handleLogin = () => {
-    setIsAuthenticated(true); 
-  };
-  const role = "admin";
+  const handleLogin = (data: { email: string; password: string; role: string }) => {
+  setIsAuthenticated(true);
+  setRole(data.role); // Set the role from login data
+};
+
 
   return (
     <BrowserRouter>

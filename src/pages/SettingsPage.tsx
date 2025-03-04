@@ -1,6 +1,9 @@
 import { Bell, Lock, Globe } from 'lucide-react';
+interface SettingsPageProps {
+  role: string;
+}
 
-export default function SettingsPage({role}) {
+export default function SettingsPage({ role }: SettingsPageProps) {
   return (
     <div>
       <h1 className="mb-6 text-2xl font-bold text-gray-800">Settings</h1>

@@ -3,48 +3,52 @@ import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 
 interface SignInPageProps {
-  onLogin: () => void;
+  onLogin: (data: { email: string; password: string; role: string }) => void;
 }
+
 
 function SignInPage({ onLogin }: SignInPageProps) {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [loading, setLoading] = useState(false); // Loader state
+  const [loading, setLoading] = useState(false); 
+  const [credentials, setCredentials] = useState({ email: '', password: '' });
 
   useEffect(() => {
     if (localStorage.getItem('rememberMe') === 'true') {
       setRememberMe(true);
-      setEmail(localStorage.getItem('email') || '');
-      setPassword(localStorage.getItem('password') || '');
+      const storedCredentials = localStorage.getItem('credentials');
+      if (storedCredentials) {
+        setCredentials(JSON.parse(storedCredentials));
+      }
     }
   }, []);
-
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true); // Start loading
 
-    // Simulate an API call with a timeout
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(credentials),
+      });
+      const data = await response.json();
+      onLogin(data.role); // Pass the role to the callback
+      setErrorMessage(data.message || 'Login failed. Please try again.');
+    } catch (error) {
+      console.error('Login failed:', error);
+    }   
     await new Promise(resolve => setTimeout(resolve, 5000));
-
-    if (email === "admin@gmail.com" && password === "123456QWERTY") {
-      if (rememberMe) {
-        localStorage.setItem('rememberMe', 'true');
-        localStorage.setItem('email', email);
-        localStorage.setItem('password', password);
-      } else {
+  if (rememberMe) {
+    localStorage.setItem('rememberMe', 'true');
+    localStorage.setItem('credentials', JSON.stringify(credentials));
+  }else {
         localStorage.removeItem('rememberMe');
         localStorage.removeItem('email');
         localStorage.removeItem('password');
       }
-
-      onLogin();
       navigate('/');
-    } else {
-      setErrorMessage("Invalid credentials");
-    }
 
     setLoading(false); // Stop loading
   };
@@ -76,9 +80,7 @@ function SignInPage({ onLogin }: SignInPageProps) {
                 placeholder="Enter your email.."
                 className="w-full px-3 py-2 border rounded"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
+                value={credentials.email} onChange={(e) => setCredentials({ ...credentials, email: e.target.value })} />
             </div>
             <div className="mb-2.5">
               <label className="block font-semibold text-base text-gray-500 mb-2.5">Password</label>
@@ -88,9 +90,7 @@ function SignInPage({ onLogin }: SignInPageProps) {
                 className="w-full px-3 py-2 border rounded"
                 minLength={6}
                 required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+                value={credentials.password} onChange={(e) => setCredentials({ ...credentials, password: e.target.value })} />
             </div>
             <div className="flex items-center justify-between mb-7">
               <label className="flex items-center">
