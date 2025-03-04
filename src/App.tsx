@@ -9,26 +9,56 @@ import ExpensePage from './pages/ExpensePage';
 import SignInPage from './pages/LoginPage';
 import SignUpPage from './pages/RegisterPage';
 import EnforcePage from './pages/EnforcePage';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [role, setRole] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleLogin = () => {
-    setIsAuthenticated(true); 
+  // ✅ Function to fetch user role from backend
+  const fetchUserRole = async () => {
+    try {
+      const token = localStorage.getItem("access_token"); // Assuming you store JWT in localStorage
+      if (!token) {
+        setIsAuthenticated(false);
+        setLoading(false);
+        return;
+      }
+
+      const response = await axios.get("http://127.0.0.1:8000/api/accounts/user-role/", {
+        headers: { Authorization: `Bearer ${token}` }, // ✅ Fixed syntax issue here
+      });
+      
+      setRole(response.data.role);
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.error("Error fetching user role:", error);
+      setIsAuthenticated(false);
+    } finally {
+      setLoading(false);
+    }
   };
-  const role = "admin";
+
+  useEffect(() => {
+    fetchUserRole();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>; // Show a loading state while fetching user role
+  }
 
   return (
     <BrowserRouter>
       <Routes>
         {/* Public routes */}
-        <Route path="/login" element={<SignInPage onLogin={handleLogin} />} />
+        <Route path="/login" element={<SignInPage onLogin={fetchUserRole} />} />
         <Route path="/register" element={<SignUpPage />} />
         <Route path="/enforce" element={<EnforcePage />} />
 
         {/* Protected routes */}
-        <Route path="/" element={isAuthenticated ? <DashboardLayout role={role} /> : <Navigate to="/login" />}>
+        <Route path="/" element={isAuthenticated ? <DashboardLayout role={role} /> : <Navigate to="/login" />} >
           <Route index element={<DashboardPage role={role} />} />
           <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="income" element={<IncomePage />} />

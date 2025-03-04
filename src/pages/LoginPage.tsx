@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../api"; // Axios instance
 
 interface SignInPageProps {
-  onLogin: (token: string) => void;
+  onLogin: (role: string) => void; // Pass user role to update dashboard dynamically
 }
 
 function SignInPage({ onLogin }: SignInPageProps) {
@@ -21,23 +21,23 @@ function SignInPage({ onLogin }: SignInPageProps) {
       const response = await api.post("/api/token/", { email, password });
 
       if (response.data.force_password_change) {
-        navigate("/enforce", { state: { email } }); // Redirect to /enforce page
+        navigate("/enforce", { state: { email } }); // Redirect to password change page
         return;
       }
 
-      const userRole = response.data.role.toLowerCase();
-      if (userRole === "admin") {
-        navigate("/admin-dashboard");
-      } else if (userRole === "manager") {
-        navigate("/manager-dashboard");
-      } else {
-        navigate("/employee-dashboard");
-      }
-        
-      onLogin(response.data.access); // Pass the token to parent component
+      // ✅ Store tokens in local storage
+      localStorage.setItem("access_token", response.data.access);
+      localStorage.setItem("refresh_token", response.data.refresh);
+      localStorage.setItem("user_role", response.data.role); // Store role
+
+      // ✅ Refresh authentication state and update dashboard
+      await onLogin(response.data.role.toLowerCase()); // Pass role to parent
+
+      // ✅ Redirect to general dashboard, UI updates dynamically
+      navigate("/");
     } catch (error: any) {
       if (error.response?.data?.force_password_change) {
-        navigate("/enforce", { state: { email } }); // Redirect to /enforce page
+        navigate("/enforce", { state: { email } }); // Redirect to enforce page
       } else {
         setErrorMessage(error?.response?.data?.detail || "Invalid credentials");
       }
@@ -55,7 +55,9 @@ function SignInPage({ onLogin }: SignInPageProps) {
             <h1 className="font-serif text-3xl font-bold">BudgetWise</h1>
           </div>
           <h1 className="text-3xl font-semibold py-2.5">Log in</h1>
-          <p className="mb-10 text-sm font-normal text-gray-400 gray-100">Welcome back! Please Enter Your Credentials.</p>
+          <p className="mb-10 text-sm font-normal text-gray-400 gray-100">
+            Welcome back! Please Enter Your Credentials.
+          </p>
           {errorMessage && <div className="mb-4 text-red-500">{errorMessage}</div>}
           <form onSubmit={handleSubmit}>
             <div className="mb-6">
