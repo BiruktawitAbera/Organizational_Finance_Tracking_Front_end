@@ -81,7 +81,7 @@ function SignInPage({ onLogin }: SignInPageProps) {
                 <input type="checkbox" className="mr-2 text-gray-400 font-base" />
                 Remember me
               </label>
-              <a href="#" className="text-sm font-normal text-gray-400 underline">Forgot your password?</a>
+              <a href="ForgotPassword" className="text-sm font-normal text-gray-400 underline">Forgot your password?</a>
             </div>
             <Button type="submit" className="relative w-full bg-sky-600 hover:bg-sky-700 group">
               Login

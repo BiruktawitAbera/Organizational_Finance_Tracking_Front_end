@@ -44,17 +44,30 @@ function EnforcePage() {
       );
 
       if (response.status === 200) {
-        // ✅ Store the new tokens after password change
+        // ✅ Store new tokens
         localStorage.setItem("auth_token", response.data.access);
         localStorage.setItem("refresh_token", response.data.refresh);
-
+        localStorage.setItem("role", response.data.role); // Store user role
+  
         alert(response.data.message || "Password changed successfully!");
-
-        // ✅ Redirect user after password update
-        window.location.href = "/dashboard";
+  
+        // ✅ Redirect based on role
+        switch (response.data.role) {
+          case "Admin":
+            window.location.href = "/admin-dashboard";
+            break;
+          case "Manager":
+            window.location.href = "/manager-dashboard";
+            break;
+          case "departmenthead":
+            window.location.href = "/department-dashboard";
+            break;
+          default:
+            window.location.href = "/dashboard"; // Fallback if role is missing
+        }
       }
     } catch (error: any) {
-      console.error("API Error:", error.response?.data); // Log error response
+      console.error("API Error:", error.response?.data);
       setErrorMessage(
         error.response?.data?.detail || "An error occurred. Please try again."
       );
