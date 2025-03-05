@@ -23,18 +23,20 @@ function App() {
   const fetchUserRole = async () => {
     try {
       const token = localStorage.getItem("access_token");
+
+
+ // Assuming you store JWT in localStorage
       if (!token) {
         setIsAuthenticated(false);
         setLoading(false);
         return;
       }
 
-      const response = await axios.get("http://127.0.0.1:8000/api/user-role/", {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await axios.get("http://127.0.0.1:8000/api/accounts/user-role/", {
+        headers: { Authorization: `Bearer ${token}` }, // ✅ Fixed syntax issue here
       });
-
+      
       setRole(response.data.role);
-      localStorage.setItem("user_role", response.data.role); // ✅ Store role for later use
       setIsAuthenticated(true);
     } catch (error) {
       console.error("Error fetching user role:", error);
@@ -48,32 +50,25 @@ function App() {
     fetchUserRole();
   }, []);
 
-  // ✅ Redirect users if loading
+
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>Loading...</div>; // Show a loading state while fetching user role
   }
 
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public Routes */}
+
+
+        {/* Public routes */}
         <Route path="/login" element={<SignInPage onLogin={fetchUserRole} />} />
         <Route path="/register" element={<SignUpPage />} />
         <Route path="/enforce" element={<EnforcePage />} />
         <Route path="/Forgotpassword" element={<ForgotPassword />} />
         <Route path="/ResetPassword" element={<ResetPassword />} />
 
-        {/* Protected Routes */}
-        <Route
-          path="/"
-          element={
-            isAuthenticated ? (
-              <DashboardLayout role={role} />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        >
+        {/* Protected routes */}
+        <Route path="/" element={isAuthenticated ? <DashboardLayout role={role} /> : <Navigate to="/login" />} >
           <Route index element={<DashboardPage role={role} />} />
           <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="income" element={<IncomePage />} />
@@ -82,6 +77,10 @@ function App() {
           <Route path="settings" element={<SettingsPage role={role} />} />
         </Route>
       </Routes>
+
+
+      
+
     </BrowserRouter>
   );
 }

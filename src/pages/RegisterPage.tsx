@@ -43,8 +43,8 @@ function SignUpPage() {
       
     } catch (err: any) {
       const errorMsg =
-        err?.response?.data?.username?.[0] ||
-        err?.response?.data?.detail ||
+        err?.response?.data?.username?.[0] 
+        err?.response?.data?.detail 
         "Registration failed. Please try again.";
       setError(errorMsg);
     }
@@ -83,9 +83,8 @@ function SignUpPage() {
                 required
               />
             </div>
-
-            {/* Username Field (Manually entered by user) */}
-            <div className="mb-6">
+    {/* Username Field (Manually entered by user) */}
+    <div className="mb-6">
               <label className="block font-semibold text-base text-gray-500 mb-2.5">
                 Username
               </label>
