@@ -26,7 +26,7 @@ const baseMenuItems = [
   { path: '/analytics', icon: BarChart3, label: 'Analytics' },
   { path: '/income', icon: DollarSign, label: 'Income' },
   { path: '/expense', icon: CreditCard, label: 'Expenses' },
-  { path: '/budget', icon: BarChart3, label: 'Budget' },
+  { path: '/allocate-budget', icon: BarChart3, label: 'Budget' },
   { path: '/department', icon: Building, label: 'Department' },
 ];
 

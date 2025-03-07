@@ -13,6 +13,8 @@ import SignUpPage from "./pages/RegisterPage";
 import EnforcePage from "./pages/EnforcePage";
 import ForgotPassword from "./pages/Forgotpassword";
 import ResetPassword from "./pages/ResetPassword";
+import BudgetAllocationForm from "./components/BudgetAllocationForm";
+import BudgetList from "./components/BudgetList";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -75,6 +77,11 @@ function App() {
           <Route path="expense" element={<ExpensePage />} />
           <Route path="users" element={role === "admin" ? <UsersPage /> : <Navigate to="/" />} />
           <Route path="settings" element={<SettingsPage role={role} />} />
+          {/* Route for the Budget Allocation Form */}
+          <Route path="/allocate-budget" element={<BudgetAllocationForm onBudgetAllocated={() => {}} />} />
+
+          {/* Route for the Budget List */}
+          <Route path="/budgets" element={<BudgetList />} />
         </Route>
       </Routes>
 

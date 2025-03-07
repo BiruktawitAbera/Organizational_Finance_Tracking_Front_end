@@ -108,9 +108,10 @@ function SignUpPage() {
                 onChange={(e) => setDepartment(e.target.value)}
                 required
               >
-                <option value="operation">Operation</option>
-                <option value="finance">Finance</option>
-                <option value="marketing">Marketing</option>
+                <option value="savings">Saving</option>
+                <option value="income">Income</option>
+                <option value="fixed_expenses">Fixed expense</option>
+                <option value="variable_expenses">Variable expense</option>
               </select>
             </div>
 
@@ -127,7 +128,7 @@ function SignUpPage() {
               >
                 <option value="admin">Admin</option>
                 <option value="manager">Manager</option>
-                <option value="employee">Employee</option>
+                <option value="department_head">Department Head</option>
               </select>
             </div>
 
