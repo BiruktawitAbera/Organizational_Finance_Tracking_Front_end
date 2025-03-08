@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import api from "../../src/api"; // Adjust the import path as needed
 
 // Define the type for the form data
@@ -28,6 +29,7 @@ const BudgetAllocationForm: React.FC<BudgetAllocationFormProps> = ({ onBudgetAll
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false); // Loader state
   const [successMessage, setSuccessMessage] = useState<string>(""); // Success message state
+  const navigate = useNavigate(); // Initialize useNavigate
 
   // Handle input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -50,6 +52,9 @@ const BudgetAllocationForm: React.FC<BudgetAllocationFormProps> = ({ onBudgetAll
       onBudgetAllocated(response.data); // Notify parent component
       setFormData({ department: "", allocated_amount: "" }); // Reset form
       setSuccessMessage("Budget allocated successfully!"); // Show success message
+      setTimeout(() => {
+        navigate("/budgets"); // Redirect to BudgetList after 2 seconds
+      }, 2000); // Delay for 2 seconds to show the success message
     } catch (err: any) {
       setError(err.response?.data?.error || "Failed to allocate budget.");
     } finally {

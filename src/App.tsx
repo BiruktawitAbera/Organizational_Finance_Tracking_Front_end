@@ -15,6 +15,7 @@ import ForgotPassword from "./pages/Forgotpassword";
 import ResetPassword from "./pages/ResetPassword";
 import BudgetAllocationForm from "./components/BudgetAllocationForm";
 import BudgetList from "./components/BudgetList";
+import UpdateBudgetForm from "./components/UpdateBudgetForm";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -82,6 +83,8 @@ function App() {
 
           {/* Route for the Budget List */}
           <Route path="/budgets" element={<BudgetList />} />
+          {/* Route for the Update Budget Form */}
+          <Route path="/update-budget/:id" element={<UpdateBudgetForm />} />
         </Route>
       </Routes>
 

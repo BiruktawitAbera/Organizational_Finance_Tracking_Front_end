@@ -34,20 +34,28 @@ const BudgetList: React.FC = () => {
   }, []);
 
   // Handle budget deletion
-  const handleDeleteBudget = async (budgetId: number) => {
-    try {
-      await api.delete(`/api/accounts/budget/${budgetId}/`); // Use api.delete directly
-      setBudgets(budgets.filter((budget) => budget.id !== budgetId));
-      setError(""); // Clear any previous errors
-    } catch (err: any) {
-      console.error("Failed to delete budget:", err);
-      setError("Failed to delete budget. Please try again later.");
+  const handleDelete = async (id: number) => {
+    if (window.confirm("Are you sure you want to delete this budget?")) {
+      try {
+        await api.delete(`/api/accounts/budget/${id}/delete/`);
+        // Remove the deleted budget from the state
+        setBudgets((prevBudgets) => prevBudgets.filter((budget) => budget.id !== id));
+        alert("Budget deleted successfully!");
+      } catch (err) {
+        console.error("Failed to delete budget:", err);
+        alert("Failed to delete budget. Please try again later.");
+      }
     }
   };
 
   // Navigate to BudgetAllocationForm
   const handleAddBudget = () => {
     navigate("/allocate-budget"); // Navigate to the BudgetAllocationForm page
+  };
+
+  // Navigate to UpdateBudgetForm
+  const handleEditBudget = (budgetId: number) => {
+    navigate(`/update-budget/${budgetId}`); // Navigate to the UpdateBudgetForm page
   };
 
   if (isLoading) {
@@ -88,9 +96,15 @@ const BudgetList: React.FC = () => {
                 <td className="p-3">
                   {new Date(budget.allocated_at).toLocaleString()}
                 </td>
-                <td className="p-3">
+                <td className="p-3 space-x-2">
                   <button
-                    onClick={() => handleDeleteBudget(budget.id)}
+                    onClick={() => handleEditBudget(budget.id)}
+                    className="bg-blue-500 text-white py-1 px-3 rounded-md hover:bg-blue-600"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(budget.id)}
                     className="bg-red-500 text-white py-1 px-3 rounded-md hover:bg-red-600"
                   >
                     Delete
