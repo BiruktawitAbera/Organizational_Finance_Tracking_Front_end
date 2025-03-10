@@ -9,6 +9,7 @@ import ExpensePage from './pages/ExpensePage';
 import SignInPage from './pages/LoginPage';
 import SignUpPage from './pages/RegisterPage';
 import EnforcePage from './pages/EnforcePage';
+import DepartmentPage from './pages/DepartmentPage';
 import { useState } from 'react';
 
 function App() {
@@ -16,10 +17,9 @@ function App() {
   const [role, setRole] = useState('');
 
   const handleLogin = (data: { email: string; password: string; role: string }) => {
-  setIsAuthenticated(true);
-  setRole(data.role); // Set the role from login data
-};
-
+    setIsAuthenticated(true);
+    setRole(data.role); // Set the role from login data
+  };
 
   return (
     <BrowserRouter>
@@ -37,6 +37,7 @@ function App() {
           <Route path="expense" element={<ExpensePage />} />
           <Route path="users" element={<UsersPage />} />
           <Route path="settings" element={<SettingsPage role={role} />} />
+          <Route path="department" element={<DepartmentPage />} />  
         </Route>
       </Routes>
     </BrowserRouter>
