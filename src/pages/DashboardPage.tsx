@@ -5,6 +5,7 @@ import AnimatedCounter from "../components/animatedcounter.tsx"
 import { Tv, Coins } from 'lucide-react';
 import IncomeTable from '../components/table.tsx';
 import { Line, Doughnut } from 'react-chartjs-2';
+import DepartmentPage from './DepartmentPage.tsx';
 import 'chart.js/auto';
 
 const lineData = {
@@ -120,6 +121,11 @@ interface DashboardPageProps {
 }
 
 export default function DashboardPage({ role }: DashboardPageProps) {
+  if (role === 'dh') {
+
+    return <DepartmentPage />;
+
+  }
   return (
     <div className='font-inter'>
       <div className='flex items-center justify-between mb-6'>

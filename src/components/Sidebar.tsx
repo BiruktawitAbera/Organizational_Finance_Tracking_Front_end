@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 interface SidebarProps {
-  role: 'manager' | 'admin'; 
+  role: 'manager' | 'admin' | 'dh'; 
   username: string;
   email: string;
 }
@@ -30,7 +30,7 @@ const baseMenuItems = [
   { path: '/department', icon: Building, label: 'Department' },
 ];
 
-function Sidebar({ role }: SidebarProps) {
+function Sidebar({ role, username, email }: SidebarProps) {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const roleBasedMenuItems = [];
@@ -39,10 +39,25 @@ function Sidebar({ role }: SidebarProps) {
     roleBasedMenuItems.push({ path: '/reports', icon: FileText, label: 'Reports' });
   } else if (role === 'admin') {
     roleBasedMenuItems.push({ path: '/users', icon: Users, label: 'Users' });
+  } else if (role === 'dh') {
+    roleBasedMenuItems.push({ path: '/request-budget', icon: DollarSign, label: 'Request Budget' });
   }
 
   const settingsMenuItem = [{ path: '/settings', icon: Settings, label: 'Settings' }];
-  const menuItems = [...baseMenuItems, ...roleBasedMenuItems, ...settingsMenuItem];
+
+  let menuItems;
+
+  if (role === 'dh') {
+    menuItems = [
+      { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
+      { path: '/analytics', icon: BarChart3, label: 'Analytics' },
+      { path: '/budget', icon: BarChart3, label: 'Budget' },
+      { path: '/request', icon: DollarSign, label: 'Request Budget' },
+      { path: '/settings', icon: Settings, label: 'Settings' },
+    ];
+  } else {
+    menuItems = [...baseMenuItems, ...roleBasedMenuItems, ...settingsMenuItem];
+  }
 
   return (
     <>
@@ -98,12 +113,12 @@ function Sidebar({ role }: SidebarProps) {
         {/* User info and role */}
         <hr className="mt-20 border-gray-300" />
         <div className="flex items-center justify-between p-4 mt-auto">
-        <Avatar>
-  <AvatarImage src="https://github.com/shadcn.png" />
-  <AvatarFallback>CN</AvatarFallback>
-</Avatar>
-          <div className="font-bold text-gray-600">{role}@gmail.com</div>
-            <LogOut size={20} />
+          <Avatar>
+            <AvatarImage src="https://github.com/shadcn.png" />
+            <AvatarFallback>CN</AvatarFallback>
+          </Avatar>
+          <div className="font-bold text-gray-600">{username}@{email}</div>
+          <LogOut size={20} />
         </div>
       </aside>
     </>

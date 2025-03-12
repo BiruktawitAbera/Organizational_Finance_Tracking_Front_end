@@ -9,8 +9,8 @@ import ExpensePage from './pages/ExpensePage';
 import SignInPage from './pages/LoginPage';
 import SignUpPage from './pages/RegisterPage';
 import EnforcePage from './pages/EnforcePage';
-import DepartmentPage from './pages/DepartmentPage';
 import { useState } from 'react';
+import RequestForm from './pages/RequestForm';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -21,23 +21,49 @@ function App() {
     setRole(data.role); // Set the role from login data
   };
 
+
+ 
   return (
+ 
     <BrowserRouter>
+ 
       <Routes>
         {/* Public routes */}
+
+ 
+
         <Route path="/login" element={<SignInPage onLogin={handleLogin} />} />
+ 
+
         <Route path="/register" element={<SignUpPage />} />
+ 
+
         <Route path="/enforce" element={<EnforcePage />} />
+ 
+
+
+ 
 
         {/* Protected routes */}
+ 
+
         <Route path="/" element={isAuthenticated ? <DashboardLayout role={role} /> : <Navigate to="/login" />}>
+ 
+
           <Route index element={<DashboardPage role={role} />} />
+ 
           <Route path="analytics" element={<AnalyticsPage />} />
+ 
           <Route path="income" element={<IncomePage />} />
           <Route path="expense" element={<ExpensePage />} />
+          <Route path='request' element={<RequestForm />} />
+ 
+          <Route path="expense" element={<ExpensePage />} />
           <Route path="users" element={<UsersPage />} />
+
+ 
           <Route path="settings" element={<SettingsPage role={role} />} />
-          <Route path="department" element={<DepartmentPage />} />  
+ 
         </Route>
       </Routes>
     </BrowserRouter>
