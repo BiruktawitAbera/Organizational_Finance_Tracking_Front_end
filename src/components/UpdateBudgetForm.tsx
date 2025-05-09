@@ -1,95 +1,135 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom"; // Import useNavigate
-import api from "../../src/api"; // Adjust the import path as needed
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import api from '../api';
 
-const UpdateBudgetForm: React.FC = () => {
-  const { id } = useParams<{ id: string }>(); // Get the budget ID from the URL
-  const navigate = useNavigate(); // Initialize useNavigate
-  const [formData, setFormData] = useState({
-    department: "",
-    allocated_amount: "",
-  });
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Fetch the budget data by ID on component mount
-  useEffect(() => {
-    const fetchBudget = async () => {
-      try {
-        const response = await api.get(`/api/accounts/budget/${id}/detail/`); // Include id in the URL
-        setFormData({
-          department: response.data.department,
-          allocated_amount: response.data.allocated_amount,
-        });
-        setError("");
-      } catch (err) {
-        console.error("Failed to fetch budget:", err);
-        setError("Failed to fetch budget. Please try again later.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchBudget();
-  }, [id]);
-
-  // Handle input changes
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+const UpdateBudgetForm = () => {
+  const { id } = useParams<{ id: string }>();
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Get the initial values from location.state
+  const { allocated_to, allocated_amount, budget_level } = location.state || {
+    allocated_to: '',
+    allocated_amount: 0,
+    budget_level: 'organization'
   };
 
-  // Handle form submission
-  const handleSubmit = async (e) => {
+  const [formData, setFormData] = useState({
+    allocated_to,
+    allocated_amount,
+    budget_level
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: name === 'allocated_amount' ? parseFloat(value) || 0 : value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setError(null);
+    
     try {
-      await api.put(`/api/accounts/budget/${id}/update/`, formData); // Include id in the URL
-      alert("Budget updated successfully!");
-      navigate("/budgets"); // Redirect to BudgetList page
-    } catch (err) {
-      setError(err.response?.data?.error || "Failed to update budget.");
+      await api.put(`/api/accounts/admin/budgets/${id}/update/`, formData);
+      setSuccess('Budget updated successfully!');
+      setTimeout(() => navigate('/AdminBudgetList'), 2000);
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to update budget');
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (isLoading) {
-    return <p className="text-center text-gray-600">Loading budget details...</p>;
-  }
-
   return (
-    <div className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Update Budget</h2>
-      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Department:</label>
+    <div className="container mx-auto px-4 py-8 max-w-2xl">
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">Update Budget</h1>
+      
+      {/* Status messages */}
+      {error && (
+        <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+          <p className="text-red-700">{error}</p>
+        </div>
+      )}
+      {success && (
+        <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-6">
+          <p className="text-green-700">{success}</p>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="allocated_to">
+            Recipient Email
+          </label>
           <input
-            type="text"
-            name="department"
-            value={formData.department}
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            id="allocated_to"
+            type="email"
+            name="allocated_to"
+            value={formData.allocated_to}
             onChange={handleChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
             required
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Allocated Amount:</label>
+
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="allocated_amount">
+            Amount
+          </label>
           <input
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            id="allocated_amount"
             type="number"
             name="allocated_amount"
+            min="0"
+            step="0.01"
             value={formData.allocated_amount}
             onChange={handleChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
             required
           />
         </div>
-        <button
-          type="submit"
-          className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        >
-          Update Budget
-        </button>
+
+        <div className="mb-6">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="budget_level">
+            Budget Level
+          </label>
+          <select
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            id="budget_level"
+            name="budget_level"
+            value={formData.budget_level}
+            onChange={handleChange}
+            required
+          >
+            <option value="organization">Organization</option>
+            <option value="department">Department</option>
+          </select>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <button
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? 'Updating...' : 'Update Budget'}
+          </button>
+          <button
+            className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            type="button"
+            onClick={() => navigate('/AdminBudgetList')}
+            disabled={loading}
+          >
+            Cancel
+          </button>
+        </div>
       </form>
     </div>
   );

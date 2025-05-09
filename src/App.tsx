@@ -13,9 +13,10 @@ import SignUpPage from "./pages/RegisterPage";
 import EnforcePage from "./pages/EnforcePage";
 import ForgotPassword from "./pages/Forgotpassword";
 import ResetPassword from "./pages/ResetPassword";
-import BudgetAllocationForm from "./components/BudgetAllocationForm";
-import BudgetList from "./components/BudgetList";
+import AdminBudgetList from "./components/AdminBudgetList";
 import UpdateBudgetForm from "./components/UpdateBudgetForm";
+import AdminBudgetCreate from "./components/AdminBudgetCreate";
+
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -79,12 +80,12 @@ function App() {
           <Route path="users" element={role === "admin" ? <UsersPage /> : <Navigate to="/" />} />
           <Route path="settings" element={<SettingsPage role={role} />} />
           {/* Route for the Budget Allocation Form */}
-          <Route path="/allocate-budget" element={<BudgetAllocationForm onBudgetAllocated={() => {}} />} />
+          <Route path="AdminBudgetCreate" element={<AdminBudgetCreate />} />
+          <Route path="AdminBudgetList" element={<AdminBudgetList />} />
+          {/* <Route path="/update-budget/:id" element={<UpdateBudgetForm />} /> */}
+          <Route path="/admin/budgets/edit/:id" element={<UpdateBudgetForm />} />
 
-          {/* Route for the Budget List */}
-          <Route path="/budgets" element={<BudgetList />} />
-          {/* Route for the Update Budget Form */}
-          <Route path="/update-budget/:id" element={<UpdateBudgetForm />} />
+
         </Route>
       </Routes>
 

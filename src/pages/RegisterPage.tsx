@@ -7,7 +7,7 @@ function SignUpPage() {
   // State for each field in the form
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState(""); // Username entered manually
-  const [department, setDepartment] = useState("operation");
+  const [department, setDepartment] = useState("Human Resources (HR)");
   const [role, setRole] = useState("admin");
   const [salary, setSalary] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -25,7 +25,7 @@ function SignUpPage() {
       const response = await api.post("/api/accounts/register/", {
         username,
         email,
-        department,
+        department: role === "department_head" ? department : null,
         role,
         salary,
       });
@@ -43,12 +43,13 @@ function SignUpPage() {
       
     } catch (err: any) {
       const errorMsg =
-        err?.response?.data?.username?.[0] 
-        err?.response?.data?.detail 
+        err?.response?.data?.username?.[0] || 
+        err?.response?.data?.detail || 
         "Registration failed. Please try again.";
       setError(errorMsg);
     }
   };
+
   return (
     <main className="flex w-full min-h-screen">
       <section className="relative flex items-center justify-center flex-1 p-2 overflow-hidden bg-white">
@@ -83,8 +84,9 @@ function SignUpPage() {
                 required
               />
             </div>
-    {/* Username Field (Manually entered by user) */}
-    <div className="mb-6">
+            
+            {/* Username Field (Manually entered by user) */}
+            <div className="mb-6">
               <label className="block font-semibold text-base text-gray-500 mb-2.5">
                 Username
               </label>
@@ -92,27 +94,10 @@ function SignUpPage() {
                 type="text"
                 className="w-full px-3 py-2 border rounded"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)} // Let the user enter a username
+                onChange={(e) => setUsername(e.target.value)}
                 placeholder="Enter your username"
                 required
               />
-            </div>
-            {/* Department Field */}
-            <div className="mb-2.5">
-              <label className="block font-semibold text-base text-gray-500 mb-2.5">
-                Department
-              </label>
-              <select
-                className="w-full px-3 py-2 border rounded"
-                value={department}
-                onChange={(e) => setDepartment(e.target.value)}
-                required
-              >
-                <option value="savings">Saving</option>
-                <option value="income">Income</option>
-                <option value="fixed_expenses">Fixed expense</option>
-                <option value="variable_expenses">Variable expense</option>
-              </select>
             </div>
 
             {/* Role Field */}
@@ -131,6 +116,26 @@ function SignUpPage() {
                 <option value="department_head">Department Head</option>
               </select>
             </div>
+
+            {/* Department Field - Only visible for Department Head */}
+            {role === "department_head" && (
+              <div className="mb-2.5">
+                <label className="block font-semibold text-base text-gray-500 mb-2.5">
+                  Department
+                </label>
+                <select
+                  className="w-full px-3 py-2 border rounded"
+                  value={department}
+                  onChange={(e) => setDepartment(e.target.value)}
+                  required
+                >
+                  <option value="Human Resources (HR)">Human Resources (HR)</option>
+                  <option value="Operations">Operations</option>
+                  <option value="IT & Systems Management">IT & Systems Management</option>
+                  <option value="Sales & Revenue Management">Sales & Revenue Management</option>
+                </select>
+              </div>
+            )}
 
             {/* Salary Field */}
             <div className="mb-2.5">
