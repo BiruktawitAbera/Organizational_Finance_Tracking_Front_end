@@ -16,6 +16,8 @@ import ResetPassword from "./pages/ResetPassword";
 import AdminBudgetList from "./components/AdminBudgetList";
 import UpdateBudgetForm from "./components/UpdateBudgetForm";
 import AdminBudgetCreate from "./components/AdminBudgetCreate";
+import ManagerBudgetList from "./components/ManagerBudgetList";
+import ManagerBudgetCreate from "./components/ManagerBudgetCreate";
 
 
 function App() {
@@ -84,6 +86,10 @@ function App() {
           <Route path="AdminBudgetList" element={<AdminBudgetList />} />
           {/* <Route path="/update-budget/:id" element={<UpdateBudgetForm />} /> */}
           <Route path="/admin/budgets/edit/:id" element={<UpdateBudgetForm />} />
+
+          {/* manager budget allocation */}
+          <Route path="/manager/budgets" element={<ManagerBudgetList />} />
+          <Route path="/manager/budgets/create" element={<ManagerBudgetCreate />} />
 
 
         </Route>

@@ -9,6 +9,7 @@ const api = axios.create({
 
 
 // Add token to requests, but exclude Authorization for public endpoints like password reset
+
 api.interceptors.request.use(
   (config) => {
     console.log("Request config:", config); // Add this line to see the config
@@ -59,6 +60,7 @@ api.interceptors.response.use(
           window.location.href = "/login"; // Redirect user to login page
         }
       }
+      
     }
     return Promise.reject(error);
   }
