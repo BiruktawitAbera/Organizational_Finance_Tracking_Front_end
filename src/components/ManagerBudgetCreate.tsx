@@ -19,25 +19,19 @@ interface BudgetData {
 const ManagerBudgetCreate = () => {
   const [formData, setFormData] = useState({
     amount: '',
-    allocated_to_email: '', // Changed from allocated_to
-    department: 'Human Resources (HR)',
+    allocated_to_email: '',
+    department: 'HR', // Default to HR code
     fiscal_year: new Date().getFullYear().toString(),
     notes: '',
     budget_level: 'department'
   });
   
-  // List of departments for dropdown
+  // Updated department choices with code and display name
   const departments = [
-    'Human Resources (HR)',
-    'Finance',
-    'Marketing',
-    'Sales',
-    'Operations',
-    'IT',
-    'Research and Development (R&D)',
-    'Customer Support',
-    'Product Management',
-    'Quality Assurance'
+    { code: 'HR', name: 'Human Resources' },
+    { code: 'OPS', name: 'Operations' },
+    { code: 'IT', name: 'Information Technology' },
+    { code: 'SALES', name: 'Sales & Revenue' },
   ];
   
   const [loading, setLoading] = useState({
@@ -56,7 +50,6 @@ const ManagerBudgetCreate = () => {
         setLoading(prev => ({ ...prev, initial: true }));
         setError(null);
 
-        // Fetch remaining budget with correct endpoint
         const budgetResponse = await api.get('/api/accounts/api/manager/budgets/remaining/');
 
         setRemainingBudget({
@@ -106,7 +99,6 @@ const ManagerBudgetCreate = () => {
     const errors: Record<string, string> = {};
     let isValid = true;
 
-    // Validate amount
     const amount = parseFloat(formData.amount);
     if (isNaN(amount) || amount <= 0) {
       errors.amount = 'Please enter a valid amount greater than 0';
@@ -116,7 +108,6 @@ const ManagerBudgetCreate = () => {
       isValid = false;
     }
 
-    // Validate department head email
     if (!formData.allocated_to_email) {
       errors.allocated_to_email = 'Please enter department head email';
       isValid = false;
@@ -160,8 +151,6 @@ const ManagerBudgetCreate = () => {
       
       if (response.status === 201) {
         setSuccess('Budget allocated successfully!');
-        
-        // Redirect to the list with success state
         navigate('/manager/budgets', {
           state: { 
             success: 'Budget allocated successfully!',
@@ -175,7 +164,6 @@ const ManagerBudgetCreate = () => {
       
       if (err.response) {
         if (err.response.data) {
-          // Handle field errors from backend
           if (typeof err.response.data === 'object') {
             setFieldErrors(err.response.data);
             return;
@@ -216,7 +204,6 @@ const ManagerBudgetCreate = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl">
-      {/* Header and navigation */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Allocate Department Budget</h1>
         <button
@@ -227,7 +214,6 @@ const ManagerBudgetCreate = () => {
         </button>
       </div>
 
-      {/* Error message */}
       {error && (
         <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500">
           <div className="flex">
@@ -243,7 +229,6 @@ const ManagerBudgetCreate = () => {
         </div>
       )}
 
-      {/* Success message */}
       {success && (
         <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-500">
           <div className="flex">
@@ -259,7 +244,6 @@ const ManagerBudgetCreate = () => {
         </div>
       )}
 
-      {/* Budget summary */}
       {remainingBudget ? (
         <div className="mb-6 bg-blue-50 px-4 py-3 rounded-lg border border-blue-100">
           <div className="grid grid-cols-3 gap-4">
@@ -283,9 +267,7 @@ const ManagerBudgetCreate = () => {
         </div>
       )}
 
-      {/* Budget allocation form */}
       <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-6">
-        {/* Amount field */}
         <div className="mb-4">
           <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
             Amount ($)
@@ -308,7 +290,6 @@ const ManagerBudgetCreate = () => {
           )}
         </div>
 
-        {/* Department head email field */}
         <div className="mb-4">
           <label htmlFor="allocated_to_email" className="block text-sm font-medium text-gray-700 mb-1">
             Department Head Email
@@ -329,7 +310,6 @@ const ManagerBudgetCreate = () => {
           )}
         </div>
 
-        {/* Department dropdown */}
         <div className="mb-4">
           <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-1">
             Department
@@ -344,8 +324,8 @@ const ManagerBudgetCreate = () => {
             disabled={loading.submitting}
           >
             {departments.map((dept) => (
-              <option key={dept} value={dept}>
-                {dept}
+              <option key={dept.code} value={dept.code}>
+                {dept.name}
               </option>
             ))}
           </select>
@@ -354,7 +334,6 @@ const ManagerBudgetCreate = () => {
           )}
         </div>
 
-        {/* Fiscal year field */}
         <div className="mb-4">
           <label htmlFor="fiscal_year" className="block text-sm font-medium text-gray-700 mb-1">
             Fiscal Year
@@ -372,7 +351,6 @@ const ManagerBudgetCreate = () => {
           />
         </div>
 
-        {/* Notes field */}
         <div className="mb-6">
           <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
             Notes (Optional)
@@ -389,7 +367,6 @@ const ManagerBudgetCreate = () => {
           />
         </div>
 
-        {/* Form actions */}
         <div className="flex justify-end space-x-3">
           <button
             type="button"

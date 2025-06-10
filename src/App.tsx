@@ -18,6 +18,8 @@ import UpdateBudgetForm from "./components/UpdateBudgetForm";
 import AdminBudgetCreate from "./components/AdminBudgetCreate";
 import ManagerBudgetList from "./components/ManagerBudgetList";
 import ManagerBudgetCreate from "./components/ManagerBudgetCreate";
+import IncomeList from "./components/IncomeList";
+import IncomeCreateForm from "./components/IncomeCreateForm";
 
 
 function App() {
@@ -90,6 +92,10 @@ function App() {
           {/* manager budget allocation */}
           <Route path="/manager/budgets" element={<ManagerBudgetList />} />
           <Route path="/manager/budgets/create" element={<ManagerBudgetCreate />} />
+
+          {/* income records */}
+          <Route path="/incomes" element={<IncomeList />} />
+          <Route path="/create-income" element={<IncomeCreateForm />} />
 
 
         </Route>

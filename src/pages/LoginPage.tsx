@@ -1,10 +1,19 @@
 import { Button } from "../components/ui/button";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api"; // Axios instance
+import api from "../api";
 
 interface SignInPageProps {
-  onLogin: (role: string) => void; // Pass user role to update dashboard dynamically
+  onLogin: (role: string) => void;
+}
+
+interface UserData {
+  id: number;
+  email: string;
+  is_department_head: boolean;
+  department: string;
+  is_manager: boolean;
+  is_superuser: boolean;
 }
 
 function SignInPage({ onLogin }: SignInPageProps) {
@@ -21,23 +30,33 @@ function SignInPage({ onLogin }: SignInPageProps) {
       const response = await api.post("/api/token/", { email, password });
 
       if (response.data.force_password_change) {
-        navigate("/enforce", { state: { email } }); // Redirect to password change page
+        navigate("/enforce", { state: { email } });
         return;
       }
 
-      // ✅ Store tokens in local storage
+      // Store tokens
       localStorage.setItem("access_token", response.data.access);
       localStorage.setItem("refresh_token", response.data.refresh);
-      localStorage.setItem("user_role", response.data.role); // Store role
+      localStorage.setItem("user_role", response.data.role);
 
-      // ✅ Refresh authentication state and update dashboard
-      await onLogin(response.data.role.toLowerCase()); // Pass role to parent
+      // Create user object - FIXED DEPARTMENT HANDLING
+      const userData: UserData = {
+        id: response.data.user_id || 0,
+        email: email,
+        is_department_head: response.data.role.toLowerCase() === "department_head",
+        // Use actual department from backend response
+        department: response.data.department || "",
+        is_manager: response.data.role.toLowerCase() === "manager",
+        is_superuser: response.data.role.toLowerCase() === "admin"
+      };
+      
+      localStorage.setItem("user", JSON.stringify(userData));
 
-      // ✅ Redirect to general dashboard, UI updates dynamically
+      await onLogin(response.data.role.toLowerCase());
       navigate("/");
     } catch (error: any) {
       if (error.response?.data?.force_password_change) {
-        navigate("/enforce", { state: { email } }); // Redirect to enforce page
+        navigate("/enforce", { state: { email } });
       } else {
         setErrorMessage(error?.response?.data?.detail || "Invalid credentials");
       }
