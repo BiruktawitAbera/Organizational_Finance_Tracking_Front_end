@@ -20,6 +20,8 @@ import ManagerBudgetList from "./components/ManagerBudgetList";
 import ManagerBudgetCreate from "./components/ManagerBudgetCreate";
 import IncomeList from "./components/IncomeList";
 import IncomeCreateForm from "./components/IncomeCreateForm";
+import ExpenseCreateForm from "./components/ExpenseCreate";
+import ExpenseList from "./components/ExpenseList";
 
 
 function App() {
@@ -96,6 +98,10 @@ function App() {
           {/* income records */}
           <Route path="/incomes" element={<IncomeList />} />
           <Route path="/create-income" element={<IncomeCreateForm />} />
+
+          {/* expense records */}
+          <Route path="/expenses/create" element={<ExpenseCreateForm />} />
+          <Route path="/expenses" element={<ExpenseList />} />
 
 
         </Route>
