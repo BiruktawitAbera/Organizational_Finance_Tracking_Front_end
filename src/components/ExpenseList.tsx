@@ -11,6 +11,7 @@ interface Expense {
   updated_at: string;
   department_head: number;
   manager: number | null;
+  department: string; // Added department field
 }
 
 interface User {
@@ -271,6 +272,8 @@ const handleUpdateStatus = async (expenseId: number, newStatus: 'APPROVED' | 'DI
             <thead>
               <tr className="bg-gray-50">
                 <th className="p-3 text-left text-sm font-semibold text-gray-700">ID</th>
+                {/* Added Department header */}
+                <th className="p-3 text-left text-sm font-semibold text-gray-700">Department</th>
                 <th className="p-3 text-left text-sm font-semibold text-gray-700">Amount</th>
                 <th className="p-3 text-left text-sm font-semibold text-gray-700">Description</th>
                 <th className="p-3 text-left text-sm font-semibold text-gray-700">Status</th>
@@ -282,6 +285,10 @@ const handleUpdateStatus = async (expenseId: number, newStatus: 'APPROVED' | 'DI
               {expenses.map((expense) => (
                 <tr key={expense.id} className="hover:bg-gray-50">
                   <td className="p-3">{expense.id}</td>
+                  {/* Added Department data cell */}
+                  <td className="p-3 text-sm text-gray-900">
+                    {expense.department || "N/A"}
+                  </td>
                   <td className="p-3 font-mono font-semibold text-red-700">
                     {formatCurrency(expense.amount)}
                   </td>

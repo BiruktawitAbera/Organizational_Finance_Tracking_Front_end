@@ -17,6 +17,8 @@ interface User {
   id: number;
   email: string;
   is_department_head: boolean;
+  is_manager: boolean;
+  is_superuser: boolean;
   department: string;
 }
 
@@ -26,6 +28,9 @@ const IncomeList: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [user, setUser] = useState<User | null>(null);
+  const [recentIncomes, setRecentIncomes] = useState<Income[]>([]);
+  const [totalIncome, setTotalIncome] = useState<number>(0);
+  const [isManagerView, setIsManagerView] = useState<boolean>(false);
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -36,6 +41,10 @@ const IncomeList: React.FC = () => {
       try {
         const parsedUser = JSON.parse(userData);
         setUser(parsedUser);
+        // Check if user is manager or admin
+        if (parsedUser.is_manager || parsedUser.is_superuser) {
+          setIsManagerView(true);
+        }
       } catch (err) {
         console.error("Error parsing user data:", err);
       }
@@ -55,10 +64,30 @@ const IncomeList: React.FC = () => {
     try {
       setIsLoading(true);
       setError("");
-      const response = await api.get("/api/accounts/income-list/");
-      setIncomes(response.data);
+      
+      if (isManagerView) {
+        // For managers/admins, fetch recent incomes and total
+        const [recentResponse, summaryResponse] = await Promise.all([
+          api.get("/api/accounts/incomes/history/", {
+            params: {
+              ordering: "-created_at",
+              page_size: 5
+            }
+          }),
+          api.get("/api/accounts/incomes/summary/")
+        ]);
+        
+        // Handle both paginated and non-paginated responses
+        setRecentIncomes(recentResponse.data.results || recentResponse.data);
+        setTotalIncome(summaryResponse.data.total_income || 0);
+      } else {
+        // For department heads, fetch normal income list
+        const response = await api.get("/api/accounts/income-list/");
+        setIncomes(response.data);
+      }
     } catch (err: any) {
       setError("Failed to fetch income records. Please try again later.");
+      console.error("API error:", err);
     } finally {
       setIsLoading(false);
     }
@@ -69,7 +98,7 @@ const IncomeList: React.FC = () => {
     if (user) {
       fetchIncomes();
     }
-  }, [user]);
+  }, [user, isManagerView]);
 
   // Format date for display
   const formatDate = (dateString: string) => {
@@ -77,8 +106,9 @@ const IncomeList: React.FC = () => {
   };
 
   // Format currency
-  const formatCurrency = (amount: string) => {
-    return parseFloat(amount).toLocaleString('en-US', {
+  const formatCurrency = (amount: string | number) => {
+    const value = typeof amount === 'string' ? parseFloat(amount) : amount;
+    return value.toLocaleString('en-US', {
       style: 'currency',
       currency: 'USD',
     });
@@ -122,11 +152,12 @@ const IncomeList: React.FC = () => {
           <h2 className="text-2xl font-bold">Income Records</h2>
           <div className="text-sm text-gray-500 mt-1">
             {userDepartment && `Department: ${userDepartment}`}
+            {isManagerView && " (Manager/Admin View)"}
           </div>
         </div>
         
         <div>
-          {isDepartmentHead && (
+          {isDepartmentHead && !isManagerView && (
             <button
               onClick={handleCreateIncome}
               className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none flex items-center"
@@ -153,92 +184,164 @@ const IncomeList: React.FC = () => {
           {error}
         </div>
       )}
-      
-      {incomes.length === 0 ? (
-        <div className="text-center py-8 border border-gray-200 rounded-lg">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          <p className="text-xl mb-2">No income records found</p>
-          <p className="text-gray-600 mb-6">Get started by creating your first income record</p>
-          {isDepartmentHead ? (
-            <button
-              onClick={handleCreateIncome}
-              className="bg-green-600 text-white py-2 px-6 rounded-md hover:bg-green-700 focus:outline-none text-lg"
-            >
-              Create Income Record
-            </button>
-          ) : (
-            <p className="text-gray-500">Only department heads can create income records</p>
-          )}
-        </div>
-      ) : (
+
+      {/* Manager/Admin View */}
+      {isManagerView ? (
         <>
-          <div className="overflow-x-auto border border-gray-200 rounded-lg">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-gray-50">
-                  <th className="p-3 text-left text-sm font-semibold text-gray-700">ID</th>
-                  <th className="p-3 text-left text-sm font-semibold text-gray-700">Date</th>
-                  <th className="p-3 text-left text-sm font-semibold text-gray-700">Description</th>
-                  <th className="p-3 text-left text-sm font-semibold text-gray-700">Department</th>
-                  <th className="p-3 text-left text-sm font-semibold text-gray-700">Amount</th>
-                  <th className="p-3 text-left text-sm font-semibold text-gray-700">Created At</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {incomes.map((income) => (
-                  <tr key={income.id} className="hover:bg-gray-50">
-                    <td className="p-3">{income.id}</td>
-                    <td className="p-3">{formatDate(income.date)}</td>
-                    <td className="p-3 max-w-xs">{income.description}</td>
-                    <td className="p-3">
-                      <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                        {income.department}
-                      </span>
-                    </td>
-                    <td className="p-3 font-mono font-semibold text-green-700">
-                      {formatCurrency(income.amount)}
-                    </td>
-                    <td className="p-3 text-sm text-gray-500">{formatDate(income.created_at)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div className="bg-blue-50 p-6 rounded-lg border border-blue-100">
+              <h3 className="text-xl font-semibold mb-4">Total Income Summary</h3>
+              <div className="text-3xl font-bold text-green-600">
+                {formatCurrency(totalIncome)}
+              </div>
+              <p className="text-gray-600 mt-2">Across all departments</p>
+            </div>
+            
+            <div className="bg-blue-50 p-6 rounded-lg border border-blue-100">
+              <h3 className="text-xl font-semibold mb-4">Recent Income Records</h3>
+              <p className="text-gray-600">Showing latest 5 records</p>
+            </div>
           </div>
 
-          {/* Department Summary for Department Heads */}
-          {isDepartmentHead && userDepartment && (
-            <div className="mt-8 p-6 bg-blue-50 rounded-lg border border-blue-100">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-semibold">Department Summary</h3>
-                <span className="px-3 py-1 bg-blue-500 text-white rounded-full text-sm">
-                  {userDepartment}
-                </span>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white p-4 rounded shadow">
-                  <h4 className="text-gray-500 text-sm uppercase">Total Income</h4>
-                  <p className="text-2xl font-bold text-green-600">
-                    {formatCurrency(departmentTotal.toString())}
-                  </p>
-                </div>
-                
-                <div className="bg-white p-4 rounded shadow">
-                  <h4 className="text-gray-500 text-sm uppercase">Number of Records</h4>
-                  <p className="text-2xl font-bold">
-                    {incomes.filter(i => i.department === userDepartment).length}
-                  </p>
-                </div>
-                
-                <div className="bg-white p-4 rounded shadow">
-                  <h4 className="text-gray-500 text-sm uppercase">Latest Record</h4>
-                  <p className="text-lg">
-                    {incomes.length > 0 ? formatDate(incomes[0].date) : 'N/A'}
-                  </p>
-                </div>
-              </div>
+          {recentIncomes.length === 0 ? (
+            <div className="text-center py-8 border border-gray-200 rounded-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <p className="text-xl mb-2">No recent income records found</p>
             </div>
+          ) : (
+            <div className="overflow-x-auto border border-gray-200 rounded-lg mb-6">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="p-3 text-left text-sm font-semibold text-gray-700">Date</th>
+                    <th className="p-3 text-left text-sm font-semibold text-gray-700">Description</th>
+                    <th className="p-3 text-left text-sm font-semibold text-gray-700">Department</th>
+                    <th className="p-3 text-left text-sm font-semibold text-gray-700">Amount</th>
+                    <th className="p-3 text-left text-sm font-semibold text-gray-700">Recorded</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {recentIncomes.map((income) => (
+                    <tr key={income.id} className="hover:bg-gray-50">
+                      <td className="p-3">{formatDate(income.date)}</td>
+                      <td className="p-3 max-w-xs">{income.description}</td>
+                      <td className="p-3">
+                        <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                          {income.department}
+                        </span>
+                      </td>
+                      <td className="p-3 font-mono font-semibold text-green-700">
+                        {formatCurrency(income.amount)}
+                      </td>
+                      <td className="p-3 text-sm text-gray-500">{formatDate(income.created_at)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          <div className="text-center">
+            <button
+              onClick={() => navigate("/income-history")}
+              className="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 focus:outline-none"
+            >
+              View Full Income History
+            </button>
+          </div>
+        </>
+      ) : (
+        // Department Head View (existing logic)
+        <>
+          {incomes.length === 0 ? (
+            <div className="text-center py-8 border border-gray-200 rounded-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <p className="text-xl mb-2">No income records found</p>
+              <p className="text-gray-600 mb-6">Get started by creating your first income record</p>
+              {isDepartmentHead ? (
+                <button
+                  onClick={handleCreateIncome}
+                  className="bg-green-600 text-white py-2 px-6 rounded-md hover:bg-green-700 focus:outline-none text-lg"
+                >
+                  Create Income Record
+                </button>
+              ) : (
+                <p className="text-gray-500">Only department heads can create income records</p>
+              )}
+            </div>
+          ) : (
+            <>
+              <div className="overflow-x-auto border border-gray-200 rounded-lg">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-gray-50">
+                      <th className="p-3 text-left text-sm font-semibold text-gray-700">ID</th>
+                      <th className="p-3 text-left text-sm font-semibold text-gray-700">Date</th>
+                      <th className="p-3 text-left text-sm font-semibold text-gray-700">Description</th>
+                      <th className="p-3 text-left text-sm font-semibold text-gray-700">Department</th>
+                      <th className="p-3 text-left text-sm font-semibold text-gray-700">Amount</th>
+                      <th className="p-3 text-left text-sm font-semibold text-gray-700">Created At</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {incomes.map((income) => (
+                      <tr key={income.id} className="hover:bg-gray-50">
+                        <td className="p-3">{income.id}</td>
+                        <td className="p-3">{formatDate(income.date)}</td>
+                        <td className="p-3 max-w-xs">{income.description}</td>
+                        <td className="p-3">
+                          <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                            {income.department}
+                          </span>
+                        </td>
+                        <td className="p-3 font-mono font-semibold text-green-700">
+                          {formatCurrency(income.amount)}
+                        </td>
+                        <td className="p-3 text-sm text-gray-500">{formatDate(income.created_at)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Department Summary for Department Heads */}
+              {isDepartmentHead && userDepartment && (
+                <div className="mt-8 p-6 bg-blue-50 rounded-lg border border-blue-100">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-semibold">Department Summary</h3>
+                    <span className="px-3 py-1 bg-blue-500 text-white rounded-full text-sm">
+                      {userDepartment}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-white p-4 rounded shadow">
+                      <h4 className="text-gray-500 text-sm uppercase">Total Income</h4>
+                      <p className="text-2xl font-bold text-green-600">
+                        {formatCurrency(departmentTotal)}
+                      </p>
+                    </div>
+                    
+                    <div className="bg-white p-4 rounded shadow">
+                      <h4 className="text-gray-500 text-sm uppercase">Number of Records</h4>
+                      <p className="text-2xl font-bold">
+                        {incomes.filter(i => i.department === userDepartment).length}
+                      </p>
+                    </div>
+                    
+                    <div className="bg-white p-4 rounded shadow">
+                      <h4 className="text-gray-500 text-sm uppercase">Latest Record</h4>
+                      <p className="text-lg">
+                        {incomes.length > 0 ? formatDate(incomes[0].date) : 'N/A'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </>
       )}
