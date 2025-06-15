@@ -12,6 +12,7 @@ function SignUpPage() {
   const [salary, setSalary] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -20,6 +21,8 @@ function SignUpPage() {
     e.preventDefault();
     setError(null);
     setSuccess(null);
+    setIsLoading(true);
+
 
     try {
       const response = await api.post("/api/accounts/register/", {
@@ -38,10 +41,12 @@ function SignUpPage() {
       
       // ✅ Redirect user to Enforce Password Change page
       setTimeout(() => {
+        setIsLoading(false);
         navigate("/login");
       }, 1500);
       
     } catch (err: any) {
+      setIsLoading(false);
       const errorMsg =
         err?.response?.data?.username?.[0] || 
         err?.response?.data?.detail || 
@@ -152,11 +157,24 @@ function SignUpPage() {
               />
             </div>
 
-            <Button type="submit" className="relative w-full bg-sky-600 hover:bg-sky-700 group">
-              Register
-              <span className="absolute transition-opacity transition-transform duration-300 ease-out transform translate-x-4 opacity-0 right-4 group-hover:translate-x-0 group-hover:opacity-100">
-                →
-              </span>
+            <Button 
+              type="submit" 
+              className="relative w-full bg-sky-600 hover:bg-sky-700 group"
+              disabled={isLoading} // Disable button during loading
+            >
+              {isLoading ? (
+                // Loader spinner
+                <div className="flex justify-center items-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                </div>
+              ) : (
+                <>
+                  Register
+                  <span className="absolute transition-opacity transition-transform duration-300 ease-out transform translate-x-4 opacity-0 right-4 group-hover:translate-x-0 group-hover:opacity-100">
+                    →
+                  </span>
+                </>
+              )}
             </Button>
           </form>
 

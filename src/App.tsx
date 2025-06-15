@@ -22,6 +22,10 @@ import IncomeList from "./components/IncomeList";
 import IncomeCreateForm from "./components/IncomeCreateForm";
 import ExpenseCreateForm from "./components/ExpenseCreate";
 import ExpenseList from "./components/ExpenseList";
+import BudgetRequest from "./components/BudgetRequest";
+import BudgetRequestList from "./components/BudgetRequestList";
+import ManagerBudgetRequests from "./components/ManagerBudgetRequests";
+import ProfilePage from "./pages/ProfilePage";
 
 
 function App() {
@@ -102,6 +106,13 @@ function App() {
           {/* expense records */}
           <Route path="/expenses/create" element={<ExpenseCreateForm />} />
           <Route path="/expenses" element={<ExpenseList />} />
+          {/* budget request */}
+          <Route path="/ManagerBudgetRequests" element={<ManagerBudgetRequests />} />
+          <Route path="/BudgetRequest" element={<BudgetRequest />} />
+          <Route path="/BudgetRequestList" element={<BudgetRequestList />} />
+          <Route path="/ProfilePage" element={<ProfilePage />} />
+          <Route path="/login" element={<SignInPage onLogin={fetchUserRole} />} />
+          
 
 
         </Route>

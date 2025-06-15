@@ -1,11 +1,20 @@
 import { Users, DollarSign, ShoppingCart, Bell } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar.tsx";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../components/ui/dropdown-menu";
 import DoughnutChart from "../components/totalprofit.tsx"
 import AnimatedCounter from "../components/animatedcounter.tsx"
 import { Tv, Coins } from 'lucide-react';
 import IncomeTable from '../components/table.tsx';
 import { Line, Doughnut } from 'react-chartjs-2';
 import 'chart.js/auto';
+import { useNavigate } from 'react-router-dom';
 
 const lineData = {
   labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
@@ -118,7 +127,16 @@ interface DashboardPageProps {
   role: string; // Role passed directly as a string prop
 }
 
+
 export default function DashboardPage({ role }: DashboardPageProps) {
+  const navigate = useNavigate();
+
+  const handleProfile = () => {
+    navigate('/ProfilePage');
+  };
+  const handleLogout = () => {
+    navigate('/login');
+  }
   return (
     <div className='font-inter'>
       <div className='flex items-center justify-between mb-6'>
@@ -130,10 +148,19 @@ export default function DashboardPage({ role }: DashboardPageProps) {
         </div>
         <div className='flex items-center'>
           <Bell className="w-6 h-6 mr-4 text-gray-800" />
-          <Avatar>
+          <DropdownMenu>
+  <DropdownMenuTrigger><Avatar>
             <AvatarImage src="https://github.com/shadcn.png" />
             <AvatarFallback>CN</AvatarFallback>
-          </Avatar>
+          </Avatar></DropdownMenuTrigger>
+  <DropdownMenuContent>
+    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+    <DropdownMenuSeparator />
+    <DropdownMenuItem onClick={handleProfile}>Profile</DropdownMenuItem>
+    <DropdownMenuItem onClick={handleLogout}>Log out</DropdownMenuItem>
+  </DropdownMenuContent>
+</DropdownMenu>
+          
         </div>
       </div>
 
