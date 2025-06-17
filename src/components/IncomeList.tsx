@@ -29,6 +29,9 @@ const IncomeList: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [user, setUser] = useState<User | null>(null);
   const [recentIncomes, setRecentIncomes] = useState<Income[]>([]);
+  const [fullHistoryIncomes, setFullHistoryIncomes] = useState<Income[]>([]); // New state for full history
+  const [isFetchingFullHistory, setIsFetchingFullHistory] = useState<boolean>(false); // Loading state for full history
+  const [showFullHistory, setShowFullHistory] = useState<boolean>(false); // Toggle between views
   const [totalIncome, setTotalIncome] = useState<number>(0);
   const [isManagerView, setIsManagerView] = useState<boolean>(false);
   const navigate = useNavigate();
@@ -90,6 +93,23 @@ const IncomeList: React.FC = () => {
       console.error("API error:", err);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Fetch full income history
+  const fetchFullIncomeHistory = async () => {
+    try {
+      setIsFetchingFullHistory(true);
+      setError("");
+      
+      const response = await api.get("/api/accounts/incomes/history/");
+      setFullHistoryIncomes(response.data.results || response.data);
+      setShowFullHistory(true);
+    } catch (err: any) {
+      setError("Failed to fetch full income history. Please try again later.");
+      console.error("API error:", err);
+    } finally {
+      setIsFetchingFullHistory(false);
     }
   };
 
@@ -198,17 +218,23 @@ const IncomeList: React.FC = () => {
             </div>
             
             <div className="bg-blue-50 p-6 rounded-lg border border-blue-100">
-              <h3 className="text-xl font-semibold mb-4">Recent Income Records</h3>
-              <p className="text-gray-600">Showing latest 5 records</p>
+              <h3 className="text-xl font-semibold mb-4">
+                {showFullHistory ? "Full Income History" : "Recent Income Records"}
+              </h3>
+              <p className="text-gray-600">
+                {showFullHistory 
+                  ? `Showing all ${fullHistoryIncomes.length} records`
+                  : "Showing latest 5 records"}
+              </p>
             </div>
           </div>
 
-          {recentIncomes.length === 0 ? (
+          {(showFullHistory ? fullHistoryIncomes : recentIncomes).length === 0 ? (
             <div className="text-center py-8 border border-gray-200 rounded-lg">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              <p className="text-xl mb-2">No recent income records found</p>
+              <p className="text-xl mb-2">No income records found</p>
             </div>
           ) : (
             <div className="overflow-x-auto border border-gray-200 rounded-lg mb-6">
@@ -223,7 +249,7 @@ const IncomeList: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {recentIncomes.map((income) => (
+                  {(showFullHistory ? fullHistoryIncomes : recentIncomes).map((income) => (
                     <tr key={income.id} className="hover:bg-gray-50">
                       <td className="p-3">{formatDate(income.date)}</td>
                       <td className="p-3 max-w-xs">{income.description}</td>
@@ -245,10 +271,25 @@ const IncomeList: React.FC = () => {
 
           <div className="text-center">
             <button
-              onClick={() => navigate("/income-history")}
-              className="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 focus:outline-none"
+              onClick={showFullHistory ? () => setShowFullHistory(false) : fetchFullIncomeHistory}
+              disabled={isFetchingFullHistory}
+              className={`bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 focus:outline-none flex items-center justify-center mx-auto ${
+                isFetchingFullHistory ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             >
-              View Full Income History
+              {isFetchingFullHistory ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Loading...
+                </>
+              ) : showFullHistory ? (
+                "Show Recent Income Records"
+              ) : (
+                "View Full Income History"
+              )}
             </button>
           </div>
         </>
