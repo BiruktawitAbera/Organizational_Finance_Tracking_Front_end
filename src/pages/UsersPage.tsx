@@ -32,9 +32,9 @@ export default function UsersPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Users</h1>
-        <button className="px-4 py-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700">
+        <a href='/register' className="px-4 py-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700">
           Add User
-        </button>
+        </a>
       </div>
 
       <div className="overflow-hidden bg-white shadow-sm rounded-xl">

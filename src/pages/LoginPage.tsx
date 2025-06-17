@@ -2,6 +2,7 @@ import { Button } from "../components/ui/button";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
+import { Eye, EyeOff } from "lucide-react"; // Assuming you're using Lucide icons
 
 interface SignInPageProps {
   onLogin: (role: string) => void;
@@ -21,6 +22,7 @@ function SignInPage({ onLogin }: SignInPageProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -90,10 +92,10 @@ function SignInPage({ onLogin }: SignInPageProps) {
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
-            <div className="mb-2.5">
+            <div className="mb-2.5 relative">
               <label className="block font-semibold text-base text-gray-500 mb-2.5">Password</label>
               <input 
-                type="password" 
+                type={showPassword ? "text" : "password"} 
                 placeholder="********" 
                 className="w-full px-3 py-2 border rounded" 
                 minLength={6} 
@@ -101,7 +103,15 @@ function SignInPage({ onLogin }: SignInPageProps) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-            </div>
+              <button
+                type="button"
+                className="absolute text-gray-400 transform -translate-y-1/2 right-3 top-14 hover:text-gray-600"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+                        </div>
             <div className="flex items-center justify-between mb-7">
               <label className="flex items-center">
                 <input type="checkbox" className="mr-2 text-gray-400 font-base" />
@@ -114,16 +124,7 @@ function SignInPage({ onLogin }: SignInPageProps) {
               <span className="absolute transition-opacity transition-transform duration-300 ease-out transform translate-x-4 opacity-0 right-4 group-hover:translate-x-0 group-hover:opacity-100">→</span>
             </Button>
           </form>
-          <div className="flex items-center my-7">
-            <hr className="flex-grow" />
-            <span className="mx-2 text-gray-400">or</span>
-            <hr className="flex-grow" />
-          </div>
-          <div className="text-center">
-            <p className="my-6 text-sm text-gray-500">
-              Don't have an account? <a href="/register" className="font-semibold text-sky-600">Sign Up</a>
-            </p>
-          </div>
+
         </div>
       </section>
     </main>

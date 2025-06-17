@@ -1,11 +1,12 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar.tsx";
+import { User, ArrowUp } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
 import {
   LayoutDashboard,
   Users,
-  Settings,
-  BarChart3,
   Menu,
   X,
   DollarSign,
@@ -14,7 +15,14 @@ import {
   LogOut,
   FileText,
 } from 'lucide-react';
-
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../components/ui/dropdown-menu";
 interface SidebarProps {
   role: 'manager' | 'admin'; 
   username: string;
@@ -23,26 +31,40 @@ interface SidebarProps {
 
 const baseMenuItems = [
   { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
-  { path: '/analytics', icon: BarChart3, label: 'Analytics' },
   { path: '/incomes', icon: DollarSign, label: 'Income' },
   { path: '/expenses', icon: CreditCard, label: 'Expenses' },
-  { path: '/manager/budgets', icon: BarChart3, label: 'Budget' },
   { path: '/department', icon: Building, label: 'Department' },
+
 ];
+
+
+
 
 function Sidebar({ role }: SidebarProps) {
   const [isOpen, setIsOpen] = React.useState(false);
+    const navigate = useNavigate();
+  const handleProfile = () => navigate('/ProfilePage');
+  const handleLogout = () => navigate('/login');
 
   const roleBasedMenuItems = [];
 
   if (role === 'manager') {
-    roleBasedMenuItems.push({ path: '/reports', icon: FileText, label: 'Reports' });
+    roleBasedMenuItems.push({ path: '/prediction', icon: FileText, label: 'Predictions' });
+    roleBasedMenuItems.push({ path: '/manager/budgets', icon: FileText, label: 'Budget' });
+    roleBasedMenuItems.push({ path: '/BudgetRequestList', icon: FileText, label: 'Budget Requests' });
+
   } else if (role === 'admin') {
     roleBasedMenuItems.push({ path: '/users', icon: Users, label: 'Users' });
+    roleBasedMenuItems.push({ path: '/prediction', icon: FileText, label: 'Predictions' });
+    roleBasedMenuItems.push({ path: '/manager/budgets', icon: FileText, label: 'Budget' });
+
+  } else {
+        roleBasedMenuItems.push({ path: '/BudgetRequest', icon: FileText, label: 'Budget Request' });
+
   }
 
-  const settingsMenuItem = [{ path: '/settings', icon: Settings, label: 'Settings' }];
-  const menuItems = [...baseMenuItems, ...roleBasedMenuItems, ...settingsMenuItem];
+  
+  const menuItems = [...baseMenuItems, ...roleBasedMenuItems];
 
   return (
     <>
@@ -98,11 +120,27 @@ function Sidebar({ role }: SidebarProps) {
         {/* User info and role */}
         <hr className="mt-20 border-gray-300" />
         <div className="flex items-center justify-between p-4 mt-auto">
-        <Avatar>
-  <AvatarImage src="https://github.com/shadcn.png" />
-  <AvatarFallback>CN</AvatarFallback>
-</Avatar>
-          <div className="font-bold text-gray-600">{role}@gmail.com</div>
+        <DropdownMenu>
+            <DropdownMenuTrigger className="focus:outline-none">
+              <Avatar className="border-2 border-blue-500">
+                <AvatarImage src="https://github.com/shadcn.png" />
+                <AvatarFallback>CN</AvatarFallback>
+              </Avatar>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleProfile} className="cursor-pointer">
+                <User className="mr-2 h-4 w-4" />
+                <span>Profile</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600">
+                <ArrowUp className="mr-2 h-4 w-4" />
+                <span>Log out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <div className="font-bold text-gray-600">{role}</div>
             <LogOut size={20} />
         </div>
       </aside>

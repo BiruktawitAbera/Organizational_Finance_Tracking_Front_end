@@ -3,9 +3,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import DashboardLayout from "./layouts/DashboardLayout";
 import DashboardPage from "./pages/DashboardPage";
-import AnalyticsPage from "./pages/AnalyticsPage";
 import UsersPage from "./pages/UsersPage";
-import SettingsPage from "./pages/SettingsPage";
+import PredictionPage from "./pages/PredictionPage";
 import IncomePage from "./pages/IncomePage";
 import ExpensePage from "./pages/ExpensePage";
 import SignInPage from "./pages/LoginPage";
@@ -26,6 +25,7 @@ import BudgetRequest from "./components/BudgetRequest";
 import BudgetRequestList from "./components/BudgetRequestList";
 import ManagerBudgetRequests from "./components/ManagerBudgetRequests";
 import ProfilePage from "./pages/ProfilePage";
+
 
 
 function App() {
@@ -84,11 +84,10 @@ function App() {
         {/* Protected routes */}
         <Route path="/" element={isAuthenticated ? <DashboardLayout role={role} /> : <Navigate to="/login" />} >
           <Route index element={<DashboardPage role={role} />} />
-          <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="income" element={<IncomePage />} />
           <Route path="expense" element={<ExpensePage />} />
           <Route path="users" element={role === "admin" ? <UsersPage /> : <Navigate to="/" />} />
-          <Route path="settings" element={<SettingsPage role={role} />} />
+          <Route path="prediction" element={<PredictionPage role={role} />} />
           {/* Route for the Budget Allocation Form */}
           <Route path="AdminBudgetCreate" element={<AdminBudgetCreate />} />
           <Route path="AdminBudgetList" element={<AdminBudgetList />} />
