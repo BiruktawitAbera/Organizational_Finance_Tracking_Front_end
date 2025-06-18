@@ -254,45 +254,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ role }) => {
       </div>
 
       {/* Recent Activities for Admin */}
-      <Card className="shadow-md">
-        <CardHeader>
-          <CardTitle>Recent System Activities</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {dashboardData?.recent_activities && dashboardData.recent_activities.length > 0 ? (
-            <div className="space-y-3">
-              {dashboardData.recent_activities.map((activity, index) => (
-                <div key={index} className="flex items-center p-3 border-b hover:bg-gray-50">
-                  <div className="p-2 mr-3 bg-gray-100 rounded-full">
-                    {activity.type === 'login' ? (
-                      <Lock className="h-5 w-5 text-gray-600" />
-                    ) : activity.type === 'budget_change' ? (
-                      <DollarSign className="h-5 w-5 text-gray-600" />
-                    ) : (
-                      <Activity className="h-5 w-5 text-gray-600" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">{activity.description}</p>
-                    <p className="text-sm text-gray-500">
-                      {format(new Date(activity.date), 'MMM dd, yyyy - hh:mm a')}
-                    </p>
-                  </div>
-                  {activity.amount && (
-                    <div className="ml-4 font-medium">
-                      {formatCurrency(activity.amount)}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="h-40 flex items-center justify-center text-gray-500">
-              No recent activities
-            </div>
-          )}
-        </CardContent>
-      </Card>
+   
     </div>
   );
 
@@ -300,9 +262,9 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ role }) => {
   const renderManagerDashboard = () => (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {renderStatsCard("Managed Budget", formatCurrency(dashboardData?.total_budget), DollarSign, "12% remaining")}
-        {renderStatsCard("Pending Approvals", dashboardData?.pending_requests?.toString() || "0", FileText, "+3 since yesterday")}
-        {renderStatsCard("Budget Requests", "7", ShoppingCart, "2 new today")}
+        {renderStatsCard("Managed Budget", formatCurrency(dashboardData?.total_budget), DollarSign)}
+        {renderStatsCard("Pending Approvals", dashboardData?.pending_requests?.toString() || "0", FileText)}
+        {renderStatsCard("Budget Requests", "7", ShoppingCart)}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -382,47 +344,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ role }) => {
       </div>
 
       {/* Recent Decisions for Manager */}
-      <Card className="shadow-md">
-        <CardHeader>
-          <CardTitle>Recent Decisions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {dashboardData?.recent_activities && dashboardData.recent_activities.length > 0 ? (
-            <div className="space-y-3">
-              {dashboardData.recent_activities
-                .filter(activity => activity.status && activity.status !== 'PENDING')
-                .map((activity, index) => (
-                  <div key={index} className="flex items-center p-3 border-b hover:bg-gray-50">
-                    <div className="p-2 mr-3 bg-gray-100 rounded-full">
-                      {activity.type === 'expense' ? (
-                        <ShoppingCart className="h-5 w-5 text-gray-600" />
-                      ) : (
-                        <FileText className="h-5 w-5 text-gray-600" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{activity.description}</p>
-                      <p className="text-sm text-gray-500 truncate">
-                        {format(new Date(activity.date), 'MMM dd, yyyy')} • 
-                        Status: <span className={activity.status ? getStatusColor(activity.status) : ''}>
-                          {activity.status || 'N/A'}
-                        </span>
-                      </p>
-                    </div>
-                    <div className="ml-4 font-medium">
-                      {formatCurrency(activity.amount || 0)}
-                    </div>
-                  </div>
-                ))
-              }
-            </div>
-          ) : (
-            <div className="h-40 flex items-center justify-center text-gray-500">
-              No recent decisions
-            </div>
-          )}
-        </CardContent>
-      </Card>
+
     </div>
   );
 
@@ -465,44 +387,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ role }) => {
         </Card>
       </div>
 
-      <Card className="shadow-md">
-        <CardHeader>
-          <CardTitle>Recent Activities</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {dashboardData?.recent_activities && dashboardData.recent_activities.length > 0 ? (
-            <div className="space-y-3">
-              {dashboardData.recent_activities.map((activity, index) => (
-                <div key={index} className="flex items-center p-3 border-b hover:bg-gray-50">
-                  <div className="p-2 mr-3 bg-gray-100 rounded-full">
-                    {activity.type === 'expense' ? (
-                      <ShoppingCart className="h-5 w-5 text-gray-600" />
-                    ) : (
-                      <DollarSign className="h-5 w-5 text-gray-600" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">{activity.description}</p>
-                    <p className="text-sm text-gray-500 truncate">
-                      {format(new Date(activity.date), 'MMM dd, yyyy')} • 
-                      Status: <span className={activity.status ? getStatusColor(activity.status) : ''}>
-                        {activity.status || 'N/A'}
-                      </span>
-                    </p>
-                  </div>
-                  <div className="ml-4 font-medium">
-                    {formatCurrency(activity.amount || 0)}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="h-40 flex items-center justify-center text-gray-500">
-              No recent activities
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      
     </div>
   );
 

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../api';
+import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 
 interface Budget {
   id: number;
   allocated_by: string;
-  allocated_to: string; // This is the email
+  allocated_to: string;
   allocated_to_name: string;
   amount: string;
   budget_level: string;
@@ -123,45 +124,38 @@ const ManagerBudgetList = () => {
     if (!currentBudget) return;
 
     try {
-      // Calculate the difference between old and new amount
       const oldAmount = parseFloat(currentBudget.amount);
       const newAmount = parseFloat(updatedAmount);
       const amountDifference = newAmount - oldAmount;
 
-      // Check if the update would exceed remaining budget
       if (remainingBudget && amountDifference > remainingBudget.remaining_amount) {
         throw new Error(`Update would exceed remaining budget by ${formatCurrency(amountDifference - remainingBudget.remaining_amount)}`);
       }
 
-      // Prepare payload matching backend expectations
       const payload = {
         amount: updatedAmount,
         notes: updatedNotes,
         department: currentBudget.department,
-        allocated_to_email: currentBudget.allocated_to, // Using email as required by backend
+        allocated_to_email: currentBudget.allocated_to,
         fiscal_year: currentBudget.fiscal_year
       };
-
-      console.log("Sending update payload:", payload);
 
       const response = await api.put(
         `/api/accounts/manager/budgets/${currentBudget.id}/update/`,
         payload
       );
 
-      // Update local state with full response
       setBudgets(budgets.map(b => 
         b.id === currentBudget.id ? { 
           ...b, 
           ...response.data,
-          allocated_to_name: b.allocated_to_name // Preserve the name
+          allocated_to_name: b.allocated_to_name
         } : b
       ));
       
       setSuccess('Budget allocation updated successfully');
       setIsEditModalOpen(false);
       
-      // Refresh remaining budget
       try {
         const remainingResponse = await api.get('/api/accounts/manager/budgets/remaining/');
         setRemainingBudget({
@@ -197,6 +191,44 @@ const ManagerBudgetList = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Budget Summary Cards - Added to Dashboard */}
+      {remainingBudget && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <Card className="shadow-md">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Total Budget</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {formatCurrency(remainingBudget.total_amount)}
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="shadow-md">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Allocated to Departments</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {formatCurrency(remainingBudget.allocated_amount)}
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="shadow-md">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Remaining Budget</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {formatCurrency(remainingBudget.remaining_amount)}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {/* Edit Budget Modal */}
       {isEditModalOpen && currentBudget && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -275,39 +307,20 @@ const ManagerBudgetList = () => {
         </div>
       )}
 
-      {/* Rest of your component remains the same */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-4 md:mb-0">
-          {remainingBudget ? 'Department Budget Allocation' : 'Department Budgets'}
+          Department Budget Allocation
         </h1>
-        <div className="flex space-x-4">
-          {remainingBudget && (
-            <div className="bg-blue-50 px-4 py-2 rounded-lg border border-blue-100">
-              <div className="text-sm text-blue-800">
-                <span className="font-medium">Total Budget: </span>
-                {formatCurrency(remainingBudget.total_amount)}
-              </div>
-              <div className="text-sm text-blue-800">
-                <span className="font-medium">Allocated: </span>
-                {formatCurrency(remainingBudget.allocated_amount)}
-              </div>
-              <div className="text-sm font-semibold text-blue-900">
-                <span className="font-bold">Remaining: </span>
-                {formatCurrency(remainingBudget.remaining_amount)}
-              </div>
-            </div>
-          )}
-          <button
-            onClick={handleAddNew}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
-            disabled={remainingBudget?.remaining_amount !== undefined && remainingBudget.remaining_amount <= 0}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-            </svg>
-            Allocate Budget
-          </button>
-        </div>
+        <button
+          onClick={handleAddNew}
+          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+          disabled={remainingBudget?.remaining_amount !== undefined && remainingBudget.remaining_amount <= 0}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+          </svg>
+          Allocate Budget
+        </button>
       </div>
 
       {error && (
@@ -355,23 +368,19 @@ const ManagerBudgetList = () => {
               </svg>
               <h3 className="mt-2 text-lg font-medium text-gray-900">No budget allocations</h3>
               <p className="mt-1 text-sm text-gray-500">
-                {remainingBudget ? 
-                  "Get started by allocating a department budget." : 
-                  "No budgets have been allocated to you."}
+                Get started by allocating a department budget.
               </p>
-              {remainingBudget && (
-                <div className="mt-6">
-                  <button
-                    onClick={handleAddNew}
-                    className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="-ml-1 mr-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                    </svg>
-                    Allocate Budget
-                  </button>
-                </div>
-              )}
+              <div className="mt-6">
+                <button
+                  onClick={handleAddNew}
+                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="-ml-1 mr-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                  </svg>
+                  Allocate Budget
+                </button>
+              </div>
             </div>
           ) : (
             <div className="overflow-x-auto">

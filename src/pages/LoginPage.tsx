@@ -36,17 +36,15 @@ function SignInPage({ onLogin }: SignInPageProps) {
         return;
       }
 
-      // Store tokens
+      // Store tokens and user data
       localStorage.setItem("access_token", response.data.access);
       localStorage.setItem("refresh_token", response.data.refresh);
       localStorage.setItem("user_role", response.data.role);
 
-      // Create user object - FIXED DEPARTMENT HANDLING
       const userData: UserData = {
         id: response.data.user_id || 0,
         email: email,
         is_department_head: response.data.role.toLowerCase() === "department_head",
-        // Use actual department from backend response
         department: response.data.department || "",
         is_manager: response.data.role.toLowerCase() === "manager",
         is_superuser: response.data.role.toLowerCase() === "admin"
